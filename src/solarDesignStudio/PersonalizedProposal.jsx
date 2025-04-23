@@ -1,8 +1,9 @@
-import React from "react";
+import { useState } from "react";
 import { Container, SectionHeader, SectionMedia, SectionContent } from "./shared/Layout";
-
+import PanelsDiv from "./PanelsDiv";
 
 const PersonalizedProposal = ({ formData, goBack }) => {
+  const [showPanels, setShowPanels] = useState(true);
   return (
     <>
     <div className="w-full mb-5 sticky top-0 z-50 bg-gray-200 shadow-md">
@@ -34,9 +35,9 @@ const PersonalizedProposal = ({ formData, goBack }) => {
           <span className="pl-2 ">
             <button
               onClick={goBack}
-              className="text-sm text-blue-600 underline  relative bottom-[4px]"
+              className="text-sm text-blue-600 relative bottom-[4px]"
             >
-              edit
+              [edit]
             </button>
           </span>
         </h2>
@@ -44,9 +45,16 @@ const PersonalizedProposal = ({ formData, goBack }) => {
       </SectionHeader>
 
 <SectionMedia>
-<div className="w-full h-140 md:h-100 bg-gray-300 mb-8 rounded-lg border-2 flex justify-center items-center">
-        {/* <span className="text-gray-500">Image Placeholder</span> */}
-      </div>
+{/* <div className="w-full h-140 md:h-100 bg-gray-300 mb-8 rounded-lg border-2 flex justify-center items-center">
+
+      </div> */}
+      <PanelsDiv
+        visible={showPanels}
+        panelsCount={12}
+        panelWattage={610}
+        squareFoot={20.56}
+        // optionally override logoSrc or panelSrc
+      />
 </SectionMedia>
 
 <SectionContent>

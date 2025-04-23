@@ -3,6 +3,7 @@ import { AiOutlineClose, AiOutlineLoading3Quarters } from "react-icons/ai";
 import { MdEmail } from "react-icons/md";
 import { BiSupport } from "react-icons/bi";
 import { FaCheck } from "react-icons/fa";
+import { sendToTelegram } from "../shared/utils/sendToTelegram";
 
 const HelpModal = ({ onClose }) => {
   // activeMethod can be "email", "text", or null.
@@ -40,7 +41,7 @@ const HelpModal = ({ onClose }) => {
     if (!isValidInput()) return;
     setSendStatus("sending");
   
-    // 1) Build your payload object
+    // Build the payload
     const now = new Date();
     const timestamp = now.toLocaleString("en-PH", {
       year:   "numeric",
@@ -49,42 +50,26 @@ const HelpModal = ({ onClose }) => {
       hour:   "2-digit",
       minute: "2-digit",
     });
-  
+
     const payload = {
-      type:      activeMethod === "email" ? "EMAIL" : "TEXT",
-      timestamp: timestamp,
+      type:      activeMethod === "email" ? "EMAIL" : "TEXT&CALL",
+      timestamp,
       contact:   contactValue.trim(),
-      help: timestamp,
+      estimateMonthlyBill: "NOTE: TEST FOR NEW SDS"
     };
-  
-    // 2) Stringify with nice indentation
-    const jsonString = JSON.stringify(payload, null, 2);
-  
-    // 3) Wrap in a Markdown code block so it shows as JSON
-    const text = ["```json", jsonString, "```"].join("\n");
-  
-    try {
-      const botToken = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
-      const chatId   = import.meta.env.VITE_TELEGRAM_CHAT_ID;
-      const res = await fetch(
-        `https://api.telegram.org/bot${botToken}/sendMessage`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id:    chatId,
-            text:       text,
-            parse_mode: "Markdown",
-          }),
-        }
-      );
-      if (!res.ok) throw new Error(await res.text());
+
+    // Send via our reusable util
+    const success = await sendToTelegram(
+      payload
+    );
+
+    if (success) {
       setSendStatus("sent");
-    } catch (err) {
-      console.error("Telegram error:", err);
+    } else {
       setSendStatus("idle");
       alert("Failed to send—check console for details.");
     }
+
   };
   
   

@@ -8,8 +8,10 @@ import EnergyUsage from "./EnergyUsage";
 import ElectricityTimeUsage from "./ElectricityTimeUsage";
 import SolarProject from "./SolarProject";
 import PersonalizedProposal from "./PersonalizedProposal";
+import { sendToTelegram } from "./shared/utils/sendToTelegram";
 
 const Design = () => {
+  const [bookingStatus, setBookingStatus] = useState("idle");
   const navigate = useNavigate();
   // Default center can be Quezon City or any default location
   const [mapCenter, setMapCenter] = useState({
@@ -48,9 +50,26 @@ const Design = () => {
     alert("Our team will contact you soon!");
   };
 
-  const handleBookSiteVisit = () => {
-    console.log("User chose to book a site visit:", formData);
-    alert("Your site visit has been booked!");
+  const handleBookSiteVisit = async () => {
+    if (bookingStatus === "sending") return;
+    setBookingStatus("sending");
+
+    // build a payload that includes your formData
+    const payload = {
+      action: "BOOK_SITE_VISIT",
+      timestamp: new Date().toISOString(),
+      systemOverview: "NOTE: TEST FOR NEW SDS",
+      data: formData
+    };
+
+    const success = await sendToTelegram(payload);
+    setBookingStatus(success ? "sent" : "idle");
+
+    if (success) {
+      alert("Your site visit has been booked!");
+    } else {
+      alert("Failed to send—please try again.");
+    }
   };
 
   const renderStep = () => {
@@ -138,11 +157,16 @@ const Design = () => {
                 Contact Me
               </button>
               <button
-                onClick={handleBookSiteVisit}
-                className="border bg-black text-white font-medium px-4 py-3 rounded-md flex-1"
-              >
-                Book Site Visit
-              </button>
+            onClick={handleBookSiteVisit}
+            disabled={bookingStatus === "sending"}
+            className={`border font-medium px-4 py-3 rounded-md flex-1 ${
+              bookingStatus === "sending"
+                ? "bg-gray-200 text-gray-500 cursor-wait"
+                : "bg-black text-white cursor-pointer"
+            }`}
+          >
+            {bookingStatus === "sending" ? "Booking..." : "Book Site Visit"}
+          </button>
             </div>
           </div>
         )}
