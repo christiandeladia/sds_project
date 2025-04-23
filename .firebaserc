@@ -1,5 +1,15 @@
 {
   "projects": {
-    "default": "esp32-a4d1a"
-  }
+    "default": "axcent-866d5"
+  },
+  "targets": {
+    "axcent-866d5": {
+      "hosting": {
+        "sds-blueshift": [
+          "sds-blueshift"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

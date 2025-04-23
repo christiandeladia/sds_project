@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // General rule for authenticated users with 'fireCMSUser' token
+    match /{document=**} {
+      allow read, write: if request.auth != null && request.auth.token.fireCMSUser == true;
+    }
+    
+    // Specific rules for various collections
+    match /inquiry/{inquiry} {
+      // Allow writes, disallow reads
+      allow read: if false;
+      allow write: if request.auth != null; // Assuming you want authenticated users to write
+    }
+    
+    match /blog/{blog} {
+      // Allow public read access, disallow writes
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /articles/{articles} {
+      // Allow public read access, disallow writes
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    match /net_metering_requirements/{net_metering_requirements} {
+  		// Allow public read access, disallow writes
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /contact/{contact} {
+      // Allow writes, disallow reads
+      allow write: if true;
+      allow read: if false;
+    }
+    
+    match /users/{userId} {
+      // Restrict read/write to the specific authenticated user
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    match /plants/{plantId} {
+      // Allow public read, authenticated writes
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Assuming you wanted to continue with a rule for devices collection
+    match /devices/{deviceId} {
+      allow read: if true;
+      allow write: if true; 
+    }
+    
+    // Rules for monitor_grid collection
+    match /monitor_grid/{recordId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Rules for monitor_inverter collection
+    match /monitor_inverter/{recordId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+  	// Rules for me337_smart_meter_data collection
+    match /me337_smart_meter_data/{recordId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    match /faq/{faq} {
+      // Allow public read access, disallow writes
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    
+  }
+}

@@ -18,3 +18,5 @@ config → Holds configuration files like API keys, environment settings, and Fi
 utils → Stores general utility functions for formatting, calculations, and reusable logic.
 helpers → Contains feature-specific functions, business logic, or API interactions.
 pages → Contains route-specific components that represent different screens or views in the app.
+
+ firebase deploy --only hosting:sds-blueshift
