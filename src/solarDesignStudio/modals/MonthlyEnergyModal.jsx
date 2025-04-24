@@ -4,7 +4,7 @@ import { FaLock, FaLockOpen } from "react-icons/fa"; // Import lock icons
 
 const dayLabels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-const AdjustMonthlyConsumptionModal = ({
+const MonthlyEnergyModal = ({
   visible,
   onClose,
   computedSliderMax,
@@ -80,4 +80,4 @@ const AdjustMonthlyConsumptionModal = ({
   );
 };
 
-export default AdjustMonthlyConsumptionModal;
+export default MonthlyEnergyModal;

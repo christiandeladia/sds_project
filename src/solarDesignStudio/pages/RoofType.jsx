@@ -1,61 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { AiOutlineClose } from "react-icons/ai";
-import groundRoof from "./assets/img/stock/ground-roof.jpeg";
-import canopyRoof from "./assets/img/stock/canopy-roof.png";
-import metalRoof from "./assets/img/stock/metal-roof.webp";
-import shinglesRoof from "./assets/img/stock/shingles-roof.webp";
-import tilesRoof from "./assets/img/stock/tiles-roof.webp";
-import flatRoof from "./assets/img/stock/flat-roof.webp";
-import roofTypes from "./assets/img/stock/roof-types.webp";
-import { Container, SectionHeader, SectionMedia, SectionContent } from "./shared/Layout";
+import groundRoof from "../assets/img/stock/ground-roof.jpeg";
+import canopyRoof from "../assets/img/stock/canopy-roof.png";
+import metalRoof from "../assets/img/stock/metal-roof.webp";
+import shinglesRoof from "../assets/img/stock/shingles-roof.webp";
+import tilesRoof from "../assets/img/stock/tiles-roof.webp";
+import flatRoof from "../assets/img/stock/flat-roof.webp";
+import roofTypes from "../assets/img/stock/roof-types.webp";
+import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
+import RoofTypeModal from '../modals/RoofTypeModal';
 
 
-// A simple modal component for selecting a roof type
-const RoofModal = ({ isOpen, onClose, onSelectRoofType, selectedRoofType }) => {
-  if (!isOpen) return null;
 
-  const roofTypes = ["Metal", "Shingles", "Tiles", "Flatroof"];
-
-  return (
-    <div className="fixed inset-0 bg-black/40 flex items-end justify-center z-50 md:items-center md:justify-center">
-      <div className="bg-white w-full rounded-t-2xl p-6 h-50 max-h-[80vh] overflow-y-auto shadow-lg transition-transform transform translate-y-0 md:rounded-2xl md:max-w-lg animate-slide-up">
-        <div className="mb-4 flex justify-between items-center">
-          <h3 className="text-lg font-bold">Select Roof Type</h3>
-          <button onClick={onClose}>
-            <AiOutlineClose className="text-black text-2xl cursor-pointer" />
-          </button>
-        </div>
-
-        <div className="flex flex-wrap gap-3 mt-15 justify-center w-full">
-          {roofTypes.map((type) => (
-            <button
-              key={type}
-              className={`border flex-1 border-gray-400 px-4 py-2 rounded-md transition-all text-sm font-medium cursor-pointer
-                ${
-                  selectedRoofType === type
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 hover:bg-blue-100"
-                }`}
-              onClick={() => {
-                onSelectRoofType(type);
-                onClose();
-              }}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
-
-        {/* <div className="mt-6 text-right">
-          <button className="text-blue-600 text-sm" onClick={onClose}>Cancel</button>
-        </div> */}
-      </div>
-    </div>
-  );
-};
-
-
-const SolarProject = ({ updateData, selectedInstallation }) => {
+const RoofType = ({ updateData, selectedInstallation }) => {
   // Local state for modal visibility and selected roof type
   const [isRoofModalOpen, setRoofModalOpen] = useState(false);
   const [selectedRoofType, setSelectedRoofType] = useState("Roof");
@@ -160,7 +117,7 @@ const SolarProject = ({ updateData, selectedInstallation }) => {
 </SectionContent>
 
 
-      <RoofModal
+      <RoofTypeModal
         isOpen={isRoofModalOpen}
         onClose={() => setRoofModalOpen(false)}
         onSelectRoofType={handleSelectRoofType}
@@ -170,4 +127,4 @@ const SolarProject = ({ updateData, selectedInstallation }) => {
   );
 };
 
-export default SolarProject;
+export default RoofType;

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FaArrowRight } from "react-icons/fa6";
-import MonthlyEnergyChart from "./chart/MonthlyEnergyChart";
-import HelpModal from "./modals/HelpModal";
-import AdjustMonthlyConsumptionModal from "./modals/AdjustMonthlyConsumptionModal";
-import { Container, SectionHeader, SectionMedia, SectionContent } from "./shared/Layout";
+import MonthlyEnergyChart from "../chart/MonthlyEnergyChart";
+import HelpModal from "../modals/HelpModal";
+import MonthlyEnergyModal from "../modals/MonthlyEnergyModal";
+import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
 
-const EnergyUsage = ({ updateData, selectedBill, customerType, initialConsumption, hasUserAdjusted }) => {
+const MonthlyEnergy = ({ updateData, selectedBill, customerType, initialConsumption, hasUserAdjusted }) => {
   const [bill, setBill] = useState(selectedBill || "");
   const [showModal, setShowModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -271,7 +271,7 @@ const EnergyUsage = ({ updateData, selectedBill, customerType, initialConsumptio
         </p>
       </SectionContent>
 
-      <AdjustMonthlyConsumptionModal
+      <MonthlyEnergyModal
         visible={showModal}
         onClose={() => setShowModal(false)}
         computedSliderMax={computedSliderMax}
@@ -286,4 +286,4 @@ const EnergyUsage = ({ updateData, selectedBill, customerType, initialConsumptio
   );
 };
 
-export default EnergyUsage;
+export default MonthlyEnergy;

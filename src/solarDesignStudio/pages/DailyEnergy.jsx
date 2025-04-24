@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { FaArrowRight } from "react-icons/fa6";
-import DailyEnergyChart from "./chart/DailyEnergyChart";
+import DailyEnergyChart from "../chart/DailyEnergyChart";
 import { AiOutlineClose } from "react-icons/ai";
 // Import the generator functions instead of the constant arrays.
 import {
   generateNightTimeData,
   generateDayTimeData,
   generateTwentyFourSevenData,
-} from "./chart/DailyEnergyChart";
-import { Container, SectionHeader, SectionMedia, SectionContent } from "./shared/Layout";
+} from "../chart/DailyEnergyChart";
+import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
 
 
-const ElectricityTimeUsage = ({ updateData, selectedUsage: propUsage, computedSliderMax }) => {
+const DailyEnergy = ({ updateData, selectedUsage: propUsage, computedSliderMax }) => {
   const [selectedUsage, setSelectedUsage] = useState(propUsage || "Day time");
   const [showChartModal, setShowChartModal] = useState(false);
   const [shake, setShake] = useState(false);
@@ -210,4 +210,4 @@ const ElectricityTimeUsage = ({ updateData, selectedUsage: propUsage, computedSl
   );
 };
 
-export default ElectricityTimeUsage;
+export default DailyEnergy;

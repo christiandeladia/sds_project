@@ -1,31 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { FaHouseChimney } from "react-icons/fa6";
 import { BsBuildingsFill } from "react-icons/bs";
-import { Container, SectionHeader, SectionMedia, SectionContent } from "./shared/Layout";
+import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
 
 const options = [
   { key: "residential", label: "Residential", Icon: FaHouseChimney },
   { key: "commercial",  label: "Commercial",  Icon: BsBuildingsFill  },
 ];
 
-const OptionButton = ({ option, selectedOption, onSelect }) => {
-  const { key, label, Icon } = option;
-  const isSelected = selectedOption === key;
 
-  return (
-    <button
-      onClick={() => onSelect(label)}
-      className={`
-        border font-medium px-4 py-3 rounded-md flex-1 flex items-center justify-center 
-        ${isSelected ? "bg-black text-white" : "bg-white text-black"}
-      `}
-    >
-      <Icon className="mr-2" /> {label}
-    </button>
-  );
-};
-
-const SolarProposal = ({ updateData, selectedType }) => {
+const BuildingType = ({ updateData, selectedType }) => {
   const [selectedOption, setSelectedOption] = useState(
     selectedType?.toLowerCase() || null
   );
@@ -83,4 +67,4 @@ const SolarProposal = ({ updateData, selectedType }) => {
   );
 };
 
-export default SolarProposal;
+export default BuildingType;

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from 'react';
 import GoogleMapReact from 'google-map-react';
 import { collection, getDocs, onSnapshot  } from 'firebase/firestore';
-import { db } from '../Config';
+import { db } from '../../Config';
 import { RiMapPinFill } from "react-icons/ri";
 import { FaArrowRight } from "react-icons/fa6";
 import { AiOutlineClose } from "react-icons/ai";
-import { Container, SectionHeader, SectionMedia, SectionContent } from "./shared/Layout";
+import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
+import MapLocationModal from '../modals/MapLocationModal';
 
 const Marker = ({ markerType }) => {
   const markerClass =
@@ -22,7 +23,7 @@ const Marker = ({ markerType }) => {
   );
 };
 
-const MapComponent = ({ updateData, selectedAddress }) => {
+const MapLocation = ({ updateData, selectedAddress }) => {
   const inputRef = useRef(null);
   const [pins, setPins] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState(null);
@@ -257,91 +258,23 @@ const MapComponent = ({ updateData, selectedAddress }) => {
 </SectionContent>
      
 
-{showMapModal && (
-  <div
-    className="
-      fixed inset-0 z-50
-      flex items-end justify-center
-
-      /* on lg+: center vertically + horizontally */
-      lg:items-center lg:justify-center
-    "
-  >
-    {/* backdrop */}
-    <div
-      className="absolute inset-0 bg-black/40"
-      onClick={() => {
-        if (selectedLocation) {
-          reverseGeocodeLatLng(selectedLocation.lat, selectedLocation.lng);
-        }
-        setShowMapModal(false);
-      }}
-    />
-
-    {/* panel */}
-    <div
-      className="
-        relative
-        bg-white
-        w-full               
-        rounded-t-2xl         
-        max -h-[80vh] overflow-y-auto
-        shadow-lg
-
-        /* lg+: dialog style */
-        lg:rounded-2xl       
-        lg:min-w-3xl         
-        lg:w-auto
-        animate-slide-up       
-      "
-    >
-      <div className="flex justify-between items-center p-4">
-        <h3 className="text-lg font-bold">Navigate the Map</h3>
-        <button
-          onClick={() => {
-            if (selectedLocation) {
-              reverseGeocodeLatLng(selectedLocation.lat, selectedLocation.lng);
-            }
-            setShowMapModal(false);
-          }}
-          className="text-xl font-bold"
-        >
-          <AiOutlineClose className="text-black text-2xl cursor-pointer" />
-        </button>
-      </div>
-      <div className="p-1 w-full h-[300px] lg:h-[500px]">
-        <GoogleMapReact
-          bootstrapURLKeys={{
-            key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-            libraries: ["places"],
-          }}
-          center={selectedLocation || defaultProps.center}
-          zoom={selectedLocation ? 19 : defaultProps.zoom}
-          options={{
-            draggable: true,
-            mapTypeId: "satellite",
-          }}
-          yesIWantToUseGoogleMapApiInternals
-          onChange={({ center }) => {
-            setSelectedLocation(center);
-          }}
-        >
-          {!showDefaultMap && (
-            <div
-              className="absolute"
-              style={{ transform: "translate(-50%, -100%)" }}
-            >
-              <RiMapPinFill className="w-8 h-8 text-red-500" />
-            </div>
-          )}
-        </GoogleMapReact>
-      </div>
-    </div>
-  </div>
-)}
+     <MapLocationModal
+       isOpen={showMapModal}
+       onClose={() => {
+         if (selectedLocation) {
+           reverseGeocodeLatLng(selectedLocation.lat, selectedLocation.lng);
+         }
+         setShowMapModal(false);
+       }}
+       center={selectedLocation}
+       zoom={defaultProps.zoom}
+       defaultProps={defaultProps}
+       showDefaultMap={showDefaultMap}
+       onCenterChange={(newCenter) => setSelectedLocation(newCenter)}
+     />
 
     </Container>
   );
 };
 
-export default MapComponent;
+export default MapLocation;

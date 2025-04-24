@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
-import MapComponent from "./MapComponent";
-import LocationSearchInput from "./LocationSearchInput";
-import SolarProposal from "./proposal";
-import EnergyUsage from "./EnergyUsage";
-import ElectricityTimeUsage from "./ElectricityTimeUsage";
-import SolarProject from "./SolarProject";
-import PersonalizedProposal from "./PersonalizedProposal";
+import Navbar from "./shared/Navbar";
+import MapLocation from "./pages/MapLocation";
+import BuildingType from "./pages/BuildingType";
+import MonthlyEnergy from "./pages/MonthlyEnergy";
+import DailyEnergy from "./pages/DailyEnergy";
+import RoofType from "./pages/RoofType";
+import SystemOverview from "./pages/SystemOverview";
 import { sendToTelegram } from "./shared/utils/sendToTelegram";
 
 const Design = () => {
@@ -75,17 +74,17 @@ const Design = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <SolarProposal updateData={updateData} selectedType={formData.type}  />;
+        return <BuildingType updateData={updateData} selectedType={formData.type}  />;
       case 2:
-        return <EnergyUsage updateData={updateData} selectedBill={formData.bill} customerType={formData.type} initialConsumption={formData.monthly}    hasUserAdjusted={formData.hasUserAdjusted}/>
+        return <MonthlyEnergy updateData={updateData} selectedBill={formData.bill} customerType={formData.type} initialConsumption={formData.monthly}    hasUserAdjusted={formData.hasUserAdjusted}/>
       case 3:
-        return <ElectricityTimeUsage updateData={updateData} selectedUsage={formData.usage} computedSliderMax={formData.sliderMax} />;
+        return <DailyEnergy updateData={updateData} selectedUsage={formData.usage} computedSliderMax={formData.sliderMax} />;
       case 4:
-        return <SolarProject updateData={updateData} selectedInstallation={formData.installation} />;
+        return <RoofType updateData={updateData} selectedInstallation={formData.installation} />;
       case 5:
-        return <MapComponent center={mapCenter} updateData={updateData} selectedAddress={formData.address} />;
+        return <MapLocation center={mapCenter} updateData={updateData} selectedAddress={formData.address} />;
       case 6:
-        return <PersonalizedProposal formData={formData} goBack={prevStep} />;
+        return <SystemOverview formData={formData} goBack={prevStep} />;
       default:
         return null;
     }

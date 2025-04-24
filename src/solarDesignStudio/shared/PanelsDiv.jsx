@@ -1,6 +1,6 @@
 import React from "react";
-import canadianSolar from "./assets/img/solar/Canadian-Solar-logo.webp";
-import solarPanel from "./assets/img/solar/solar-panel.webp";
+import canadianSolar from "../assets/img/solar/Canadian-Solar-logo.webp";
+import solarPanel from "../assets/img/solar/solar-panel.webp";
 
 const PanelsDiv = ({
   panelsCount = "- x",

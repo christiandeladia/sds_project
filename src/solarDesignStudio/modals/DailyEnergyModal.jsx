@@ -1,9 +1,8 @@
-// src/components/AdjustDailyConsumptionModal.jsx
 import React from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import DailyEnergyChart from '../chart/DailyEnergyChart';
 
-export default function AdjustDailyConsumptionModal({
+export default function DailyEnergyModal({
   isOpen,
   onClose,
   data,
