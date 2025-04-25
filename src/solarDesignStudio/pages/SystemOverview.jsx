@@ -79,21 +79,21 @@ const SystemOverview = ({ formData, goBack }) => {
 
 <div className="pb-25">
         <p>
-          <strong>Type:</strong> {formData.type}
+          <strong>Type:</strong> {formData.buildingType}
         </p>
         <p>
-          <strong>Electricity Bill: <span className="font-normal">₱</span></strong> {formData.bill}
+          <strong>Electricity Bill: <span className="font-normal">₱</span></strong> {formData.monthlyBill}
         </p>
         <p>
-          <strong>Monthly Data:</strong> {formData.monthly.join(', ')}
+          <strong>Monthly Energy Data:</strong> {formData.monthlyEnergyData.join(', ')}
         </p>
 
         <p>
-          <strong>Usage Time:</strong> {formData.usage}
+          <strong>Usage Time:</strong> {formData.timeOfUse}
         </p>
         <p>
-          <strong>Daily Data:</strong>{" "}
-          {formData.electricityData
+          <strong>Daily Energy Data:</strong>{" "}
+          {formData.dailyEnergyData
             .map(num =>
               num % 1 === 0 ? num : Number(num).toFixed(1)
             )
@@ -102,11 +102,18 @@ const SystemOverview = ({ formData, goBack }) => {
 
 
         <p>
-          <strong>Installation Type:</strong> {formData.installation}
+          <strong>Installation Type:</strong> {formData.installationType}
         </p>
         <p>
           <strong>Address:</strong> {formData.address}
         </p>
+        {formData.coordinates && (
+          <p>
+            <strong>Coordinates:</strong>{" "}
+            {formData.coordinates.lat.toFixed(6)}, {formData.coordinates.lng.toFixed(6)}
+          </p>
+        )}
+
       </div>
 
       <FinalContent

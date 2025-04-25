@@ -31,6 +31,8 @@ const MapLocation = ({ updateData, selectedAddress }) => {
   const [showMapModal, setShowMapModal] = useState(false);
   const debounceTimer = useRef(null);
   const wasFromInput = useRef(false);
+  const containerRef = useRef(null);
+
 
   // When an address is provided externally, update the input and map accordingly.
   useEffect(() => {
@@ -45,14 +47,14 @@ const MapLocation = ({ updateData, selectedAddress }) => {
           const lat = loc.lat();
           const lng = loc.lng();
           setSelectedLocation({ lat, lng });
-          updateData("coordinates", { lat, lng });
+          updateData('coordinates', { lat, lng })
           setShowDefaultMap(false);
         } else {
           console.warn("Geocode failed for saved address:", status);
         }
       });
     }
-  }, [selectedAddress]);
+  }, [selectedAddress, updateData]);
 
   useEffect(() => {
     return () => clearTimeout(debounceTimer.current);
@@ -75,51 +77,44 @@ const MapLocation = ({ updateData, selectedAddress }) => {
   
 
   useEffect(() => {
-    const initializeAutocomplete = () => {
-      if (!window.google || !window.google.maps || !window.google.maps.places) {
-        console.warn('Google Maps JavaScript API or Places library is not available yet.');
-        return;
-      }
-      const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-        types: ['geocode'],
-        componentRestrictions: { country: 'ph' },
-      });
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (place && place.formatted_address && place.geometry) {
-          console.log("Selected Address:", place.formatted_address);
-          wasFromInput.current = true;
-          updateData("address", place.formatted_address);
-          if (inputRef.current) {
-            inputRef.current.value = place.formatted_address;
-          }
-          const lat = place.geometry.location.lat();
-          const lng = place.geometry.location.lng();
-          setSelectedLocation({ lat, lng });
-          updateData("coordinates", { lat, lng });
-          setShowDefaultMap(false);
-
-          clearTimeout(debounceTimer.current);
-          // …then open modal after 500ms
-          debounceTimer.current = setTimeout(() => {
-            setShowMapModal(true);
-          }, 500);
-        }
-      });
-    };
-    if (typeof window !== "undefined") {
-      if (window.google?.maps?.places) {
-        initializeAutocomplete();
-      } else {
-        const intervalId = setInterval(() => {
-          if (window.google?.maps?.places) {
-            initializeAutocomplete();
-            clearInterval(intervalId);
-          }
-        }, 100);
-      }
+    let widget = null;
+    if (!window.google?.maps?.importLibrary) {
+      console.warn("Maps JS API not ready yet");
+      return;
     }
+  
+    // 1) load the new Places library
+    window.google.maps.importLibrary("places").then(() => {
+      // 2) instantiate with *no* invalid options
+      widget = new window.google.maps.places.PlaceAutocompleteElement({});
+  
+      // 3) set your placeholder via DOM
+      widget.setAttribute("placeholder", "22 Ilagan St, Quezon City");
+  
+      // 4) mount into your container
+      containerRef.current.appendChild(widget);
+  
+      // 5) listen for selection
+      widget.addEventListener("gmp-select", async (e) => {
+        const place = e.placePrediction.toPlace();
+        await place.fetchFields({ fields: ["formattedAddress", "location"] });
+        const address = place.formattedAddress;
+        const { lat, lng } = place.location.toJSON();
+  
+        setSelectedLocation({ lat, lng });
+        updateData("address", address);
+        updateData("coordinates", { lat, lng });
+        setShowDefaultMap(false);
+      });
+    });
+  
+    // clean up on unmount
+    return () => {
+      if (widget) widget.remove();
+    };
   }, [updateData]);
+  
+  
 
   const defaultProps = {
     center: { lat: 14.6760, lng: 121.0437 },
@@ -255,13 +250,12 @@ const MapLocation = ({ updateData, selectedAddress }) => {
       
 <SectionContent>
 <p className="mt-4 text-2xl font-medium mb-5 md:mt-0">Address of your project</p>
-      <input
-        ref={inputRef}
-        type="text"
-        placeholder="22 Ilagan St, Quezon City"
-        className="p-2 border rounded w-full"
-        onChange={handleChange}
-      />
+  <div
+    ref={containerRef}
+    className="p-2 border rounded w-full"
+    style={{ height: '40px' }}
+    id="autocomplete-container"
+  />
       <p className="text-[0.75rem] text-gray-400 tracking-tight mb-8 mt-2">
         We only use your address so that we can check your roof layout &amp; panel placements.
       </p>
@@ -282,10 +276,10 @@ const MapLocation = ({ updateData, selectedAddress }) => {
        showDefaultMap={showDefaultMap}
        onCenterChange={(newCenter) => {
         setSelectedLocation(newCenter);
-       updateData("coordinates", {
-         lat: newCenter.lat,
-         lng: newCenter.lng
-       });
+        updateData('coordinates', {
+          lat: newCenter.lat,
+          lng: newCenter.lng
+        });
       }}
      />
 

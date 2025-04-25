@@ -9,21 +9,21 @@ const options = [
 ];
 
 
-const BuildingType = ({ updateData, selectedType }) => {
+const BuildingType = ({ updateData, selectedBuildingType }) => {
   const [selectedOption, setSelectedOption] = useState(
-    selectedType?.toLowerCase() || null
+    selectedBuildingType?.toLowerCase() || null
   );
 
   // Keep local state in sync if parent’s selectedType changes
   useEffect(() => {
-    if (selectedType) {
-      setSelectedOption(selectedType.toLowerCase());
+    if (selectedBuildingType) {
+      setSelectedOption(selectedBuildingType.toLowerCase());
     }
-  }, [selectedType]);
+  }, [selectedBuildingType]);
 
-  const handleSelection = (type) => {
-    setSelectedOption(type.toLowerCase());
-    updateData("type", type);
+  const handleSelection = (buildingType) => {
+    setSelectedOption(buildingType.toLowerCase());
+    updateData("buildingType", buildingType);
   };
 
   return (

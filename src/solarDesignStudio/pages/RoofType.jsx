@@ -12,7 +12,7 @@ import RoofTypeModal from '../modals/RoofTypeModal';
 
 
 
-const RoofType = ({ updateData, selectedInstallation }) => {
+const RoofType = ({ updateData, selectedInstallationType }) => {
   // Local state for modal visibility and selected roof type
   const [isRoofModalOpen, setRoofModalOpen] = useState(false);
   const [selectedRoofType, setSelectedRoofType] = useState("Roof");
@@ -20,37 +20,37 @@ const RoofType = ({ updateData, selectedInstallation }) => {
   // When component mounts, set selectedRoofType from formData
   useEffect(() => {
     if (
-      selectedInstallation &&
-      !["Ground", "Canopy"].includes(selectedInstallation)
+      selectedInstallationType &&
+      !["Ground", "Canopy"].includes(selectedInstallationType)
     ) {
-      setSelectedRoofType(selectedInstallation); // set to "Metal", "Tiles", etc.
+      setSelectedRoofType(selectedInstallationType); // set to "Metal", "Tiles", etc.
     }
-  }, [selectedInstallation]);
+  }, [selectedInstallationType]);
 
   const handleInstallationClick = (option) => {
     if (option === "Roof") {
       // Open modal for roof type selection
       setRoofModalOpen(true);
     } else {
-      updateData("installation", option);
+      updateData("installationType", option);
     }
   };
 
   const handleSelectRoofType = (roofType) => {
     setSelectedRoofType(roofType);
-    updateData("installation", roofType);
+    updateData("installationType", roofType);
   };
 
     // Determine image URL based on the selected installation.
   // For Roof, we display the roof type in the placeholder image text.
   let imageUrl = '';
-  if (selectedInstallation === "Ground") {
+  if (selectedInstallationType === "Ground") {
     imageUrl = groundRoof;
-  } else if (selectedInstallation === "Canopy") {
+  } else if (selectedInstallationType === "Canopy") {
     imageUrl = canopyRoof;
   } else {
     // For roof types: "Metal", "Shingles", "Tiles", or "Flatroof"
-    switch (selectedInstallation) {
+    switch (selectedInstallationType) {
     case "Metal":
         imageUrl = metalRoof;
         break;
@@ -97,11 +97,11 @@ const RoofType = ({ updateData, selectedInstallation }) => {
     <button
       key={option}
       className={`border border-gray-500 px-1 py-2 rounded-md flex-1 cursor-pointer transition-all
-        ${selectedInstallation === option ||
+        ${selectedInstallationType === option ||
           (option === "Roof" &&
-            selectedInstallation &&
-            selectedInstallation !== "Ground" &&
-            selectedInstallation !== "Canopy")
+            selectedInstallationType &&
+            selectedInstallationType !== "Ground" &&
+            selectedInstallationType !== "Canopy")
           ? "bg-blue-500 text-white"
           : "bg-gray-100"}`}
       onClick={() => handleInstallationClick(option)}

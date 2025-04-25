@@ -5,19 +5,19 @@ import HelpModal from "../modals/HelpModal";
 import MonthlyEnergyModal from "../modals/MonthlyEnergyModal";
 import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
 
-const MonthlyEnergy = ({ updateData, selectedBill, customerType, initialConsumption, hasUserAdjusted }) => {
-  const [bill, setBill] = useState(selectedBill || "");
+const MonthlyEnergy = ({ updateData, selectedMonthlyBill, selectedBuildingType, initialConsumption, hasUserAdjusted }) => {
+  const [monthlyBill, setMonthlyBill] = useState(selectedMonthlyBill || "");
   const [showModal, setShowModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
 
   // Compute the slider's max value based on the bill and customer type.
   const computeSliderMax = (billValue) => {
     const numericBill = billValue ? Number(billValue.replace(/,/g, "")) : 10000;
-    const rate = customerType === "Commercial" ? 10 : 12.65;
+    const rate = selectedBuildingType === "Commercial" ? 10 : 12.65;
     return Math.round(numericBill / rate);
   };
 
-  const computedSliderMax = computeSliderMax(bill);
+  const computedSliderMax = computeSliderMax(monthlyBill);
 
   useEffect(() => {
     // Pass computedSliderMax up to the parent using updateData.
@@ -54,7 +54,7 @@ const MonthlyEnergy = ({ updateData, selectedBill, customerType, initialConsumpt
     if (!hasUserAdjusted) {
       const defaultConsumption = generateDailyConsumptionFromBill(computedSliderMax);
       setDailyConsumption(defaultConsumption);
-      updateData("monthly", defaultConsumption);
+      updateData("monthlyEnergyData", defaultConsumption);
     }
   }, [computedSliderMax, hasUserAdjusted]);
   
@@ -66,21 +66,21 @@ const MonthlyEnergy = ({ updateData, selectedBill, customerType, initialConsumpt
   let value = e.target.value;
   const raw = value.replace(/,/g, "");
   if (raw === "") {
-    setBill("");
-    updateData("bill", "");
+    setMonthlyBill("");
+    updateData("monthlyBill", "");
     return;
   }
   if (!/^\d+$/.test(raw)) return;
   if (raw.length > 1 && raw.startsWith("0")) return;
   const formatted = Number(raw).toLocaleString();
-  setBill(formatted);
-  updateData("bill", formatted);
+  setMonthlyBill(formatted);
+  updateData("monthlyBill", formatted);
 
   // Reset adjustment state when bill changes
   const newSliderMax = computeSliderMax(formatted);
   const defaultConsumption = generateDailyConsumptionFromBill(newSliderMax);
   setDailyConsumption(defaultConsumption);
-  updateData("monthly", defaultConsumption);
+  updateData("monthlyEnergyData", defaultConsumption);
   updateData("hasUserAdjusted", false);
 };
 
@@ -211,7 +211,7 @@ const MonthlyEnergy = ({ updateData, selectedBill, customerType, initialConsumpt
     ));
     
     // Update parent's state.
-    updateData("monthly", updatedConsumption);
+    updateData("monthlyEnergyData", updatedConsumption);
     updateData("hasUserAdjusted", true);
   };
   
@@ -228,6 +228,9 @@ const MonthlyEnergy = ({ updateData, selectedBill, customerType, initialConsumpt
       </SectionHeader>
 
       <SectionMedia>
+  {monthlyBill
+    ? (
+      <>
         <MonthlyEnergyChart
           dailyConsumption={dailyConsumption}
           sliderMax={computedSliderMax}
@@ -241,8 +244,14 @@ const MonthlyEnergy = ({ updateData, selectedBill, customerType, initialConsumpt
             Adjust Monthly Consumption <FaArrowRight className="ml-1" />
           </button>
         </div>
+      </>
+    )
+    : (
+      <div className="w-full h-60 bg-white rounded-lg" />
+    )
+  }
+</SectionMedia>
 
-      </SectionMedia>
 
       <SectionContent>
         <p className="mt-4 md:mt-0 text-2xl font-medium">
@@ -260,7 +269,7 @@ const MonthlyEnergy = ({ updateData, selectedBill, customerType, initialConsumpt
           </span>
           <input
             type="text"
-            value={bill}
+            value={monthlyBill}
             onChange={handleChange}
             placeholder="18,000"
             className="pl-8 p-2 border rounded w-full"

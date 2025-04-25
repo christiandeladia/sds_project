@@ -11,8 +11,8 @@ import {
 import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
 
 
-const DailyEnergy = ({ updateData, selectedUsage: propUsage, computedSliderMax }) => {
-  const [selectedUsage, setSelectedUsage] = useState(propUsage || "Day time");
+const DailyEnergy = ({ updateData, selectedTimeOfUse: propUsage, computedSliderMax }) => {
+  const [selectedTimeOfUse, setSelectedTimeOfUse] = useState(propUsage || "Day time");
   const [showChartModal, setShowChartModal] = useState(false);
   const [shake, setShake] = useState(false);
   
@@ -20,9 +20,9 @@ const DailyEnergy = ({ updateData, selectedUsage: propUsage, computedSliderMax }
   const dailySliderMax = Math.round(computedSliderMax / 31);
 
   // Create a function that returns dynamic default patterns.
-  const getDefaultPattern = (usage) => {
-    if (usage === "Night time") return generateNightTimeData(dailySliderMax);
-    if (usage === "24 Hours") return generateTwentyFourSevenData(dailySliderMax);
+  const getDefaultPattern = (timeOfUse) => {
+    if (timeOfUse === "Night time") return generateNightTimeData(dailySliderMax);
+    if (timeOfUse === "24 Hours") return generateTwentyFourSevenData(dailySliderMax);
     return generateDayTimeData(dailySliderMax);
   };
 
@@ -31,29 +31,29 @@ const DailyEnergy = ({ updateData, selectedUsage: propUsage, computedSliderMax }
 
   // On mount, update parent's state with the usage selection.
   useEffect(() => {
-    updateData("usage", selectedUsage);
-    updateData("electricityData", dailyPattern);
+    updateData("timeOfUse", selectedTimeOfUse);
+    updateData("dailyEnergyData", dailyPattern);
   }, []);
 
   const handleUsageChange = (option) => {
-    setSelectedUsage(option);
-    updateData("usage", option);
+    setSelectedTimeOfUse(option);
+    updateData("timeOfUse", option);
     // Update dailyPattern dynamically based on the new selection.
     const newPattern = getDefaultPattern(option);
     // Update local state.
     setDailyPattern(newPattern);
-    // Also update parent's state for electricityData.
-    updateData("electricityData", newPattern);
+    // Also update parent's state for dailyEnergyData.
+    updateData("dailyEnergyData", newPattern);
   };
 
   // When the modal chart is changed, update the state.
   const handleChartUpdate = (newData) => {
     setDailyPattern(newData);
-   updateData("electricityData", newData);
+   updateData("dailyEnergyData", newData);
     const pattern = analyzePattern(newData);
-    if (pattern !== selectedUsage) {
-      setSelectedUsage(pattern);
-      updateData("usage", pattern);
+    if (pattern !== selectedTimeOfUse) {
+      setSelectedTimeOfUse(pattern);
+      updateData("timeOfUse", pattern);
     }
   };
 
@@ -109,7 +109,7 @@ const DailyEnergy = ({ updateData, selectedUsage: propUsage, computedSliderMax }
           data={dailyPattern} 
           draggable={false} 
           sliderMax={computedSliderMax} 
-          usage={selectedUsage}  // Pass current usage so the chart can adjust if needed.
+          timeOfUse={selectedTimeOfUse}  // Pass current usage so the chart can adjust if needed.
         />
         <div className="flex justify-end">
           <button
@@ -123,7 +123,7 @@ const DailyEnergy = ({ updateData, selectedUsage: propUsage, computedSliderMax }
 
       </SectionMedia>
 
-      {/* Usage Options */}
+      {/* timeOfUse Options */}
       <SectionContent>
         <p className="mt-4 md:mt-0 text-2xl font-medium mb-4">
           When do you mainly use your electricity?
@@ -133,7 +133,7 @@ const DailyEnergy = ({ updateData, selectedUsage: propUsage, computedSliderMax }
             <button
               key={option}
               className={`border border-gray-500 px-1 py-2 rounded-md flex-1 cursor-pointer transition-all
-                ${selectedUsage === option ? "bg-blue-500 text-white" : "bg-gray-100"}`}
+                ${selectedTimeOfUse === option ? "bg-blue-500 text-white" : "bg-gray-100"}`}
               onClick={() => handleUsageChange(option)}
             >
               {option}
@@ -199,7 +199,7 @@ const DailyEnergy = ({ updateData, selectedUsage: propUsage, computedSliderMax }
               draggable={true}
               onDataChange={handleChartUpdate} // updates local state and eventually parent's state
               sliderMax={computedSliderMax}
-              usage={selectedUsage}
+              timeOfUse={selectedTimeOfUse}
               onMaxDrag={triggerShake}
             />
     </div>

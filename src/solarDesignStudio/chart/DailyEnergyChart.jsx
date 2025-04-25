@@ -112,7 +112,7 @@ export const defaultLabels = [
   '12 PM', '2 PM', '4 PM', '6 PM', '8 PM', '10 PM'
 ];
 
-function DailyEnergyChart({ data = [], draggable = false, onDataChange, sliderMax, usage = "Day time", onMaxDrag  }) {
+function DailyEnergyChart({ data = [], draggable = false, onDataChange, sliderMax, TimeOfUse = "Day time", onMaxDrag  }) {
   // Convert the monthly sliderMax to a daily sliderMax (as a whole number).
   const dailySliderMax = Math.round(sliderMax / 31);
   console.log("dailySliderMax:", dailySliderMax);
@@ -122,9 +122,9 @@ function DailyEnergyChart({ data = [], draggable = false, onDataChange, sliderMa
   if (data.length) {
     dynamicData = data;
   } else {
-    if (usage === "Night time") {
+    if (TimeOfUse === "Night time") {
       dynamicData = generateNightTimeData(dailySliderMax);
-    } else if (usage === "24 Hours") {
+    } else if (TimeOfUse === "24 Hours") {
       dynamicData = generateTwentyFourSevenData(dailySliderMax);
     } else {
       // Default to Day time

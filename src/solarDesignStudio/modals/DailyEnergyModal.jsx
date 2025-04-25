@@ -7,7 +7,7 @@ export default function DailyEnergyModal({
   onClose,
   data,
   sliderMax,
-  usage,
+  TimeOfUse,
   onDataChange,
   onMaxDrag,
   shake,
@@ -68,7 +68,7 @@ export default function DailyEnergyModal({
           draggable
           onDataChange={onDataChange}
           sliderMax={sliderMax}
-          usage={usage}
+          TimeOfUse={TimeOfUse}
           onMaxDrag={onMaxDrag}
         />
       </div>

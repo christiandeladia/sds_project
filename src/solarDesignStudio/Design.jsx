@@ -8,6 +8,7 @@ import DailyEnergy from "./pages/DailyEnergy";
 import RoofType from "./pages/RoofType";
 import SystemOverview from "./pages/SystemOverview";
 import { sendToTelegram } from "./shared/utils/sendToTelegram";
+import { calculateDesign } from '../../functions/solarDesignStudio/CalculateDesign';
 
 const Design = () => {
   const [bookingStatus, setBookingStatus] = useState("idle");
@@ -20,13 +21,14 @@ const Design = () => {
 
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    type: "",
-    bill: "",
-    monthly: [],
-    usage: "",
-    electricityData: [],
-    installation: "",
+    buildingType: "",
+    monthlyBill: "",
+    monthlyEnergyData: [],
+    timeOfUse: "",
+    dailyEnergyData: [],
+    installationType: "",
     address: "",
+    coordinates: { lat: null, lng: null },
     hasUserAdjusted: false,
     sliderMax: 0 
   });
@@ -74,13 +76,13 @@ const Design = () => {
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <BuildingType updateData={updateData} selectedType={formData.type}  />;
+        return <BuildingType updateData={updateData} selectedBuildingType={formData.buildingType}  />;
       case 2:
-        return <MonthlyEnergy updateData={updateData} selectedBill={formData.bill} customerType={formData.type} initialConsumption={formData.monthly}    hasUserAdjusted={formData.hasUserAdjusted}/>
+        return <MonthlyEnergy updateData={updateData} selectedMonthlyBill={formData.monthlyBill} selectedBuildingType={formData.buildingType} initialConsumption={formData.monthlyEnergyData}    hasUserAdjusted={formData.hasUserAdjusted}/>
       case 3:
-        return <DailyEnergy updateData={updateData} selectedUsage={formData.usage} computedSliderMax={formData.sliderMax} />;
+        return <DailyEnergy updateData={updateData} selectedTimeOfUse={formData.timeOfUse} computedSliderMax={formData.sliderMax} />;
       case 4:
-        return <RoofType updateData={updateData} selectedInstallation={formData.installation} />;
+        return <RoofType updateData={updateData} selectedInstallationType={formData.installationType} />;
       case 5:
         return <MapLocation center={mapCenter} updateData={updateData} selectedAddress={formData.address} />;
       case 6:
@@ -93,13 +95,13 @@ const Design = () => {
   const isStepValid = () => {
     switch (step) {
       case 1:
-        return formData.type !== "";
+        return formData.buildingType !== "";
       case 2:
-        return formData.bill !== "";
+        return formData.monthlyBill !== "";
       case 3:
-        return formData.usage !== "";
+        return formData.timeOfUse !== "";
       case 4:
-        return formData.installation !== "";
+        return formData.installationType !== "";
       case 5:
         return formData.address !== "";
       default:
