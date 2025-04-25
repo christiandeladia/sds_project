@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
 import PanelsDiv from "../shared/PanelsDiv";
-import FinalContent from '../shared/FinalContent';
+// import FinalContent from '../shared/FinalContent';
 
 const SystemOverview = ({ formData, goBack }) => {
   const [showPanels, setShowPanels] = useState(true);
-  const [view, setView] = useState('finalContent');
+  // const [view, setView] = useState('finalContent');
 
    // Handlers for the various buttons/actions
    const handleAdjustSize = () => {
@@ -116,7 +116,7 @@ const SystemOverview = ({ formData, goBack }) => {
 
       </div>
 
-      <FinalContent
+      {/* <FinalContent
         visible={view === 'finalContent'}
         systemKw="12 kW Solar Panels"
         includeBattery={true}
@@ -128,10 +128,10 @@ const SystemOverview = ({ formData, goBack }) => {
         billWarning={false}
         onRecalculate={handleRecalculate}
         totalMonthlyBill="₱2,500"
-        solarProgress={60}            // 60% of bill covered by solar
-        savings="₱5,500"               // monthly savings
-        generation="400 kWh"           // monthly generation
-        totalCost="₱1,000,000"         // system cost
+        solarProgress={60}            
+        savings="₱5,500"               
+        generation="400 kWh"          
+        totalCost="₱1,000,000"        
         solarRate="₱4.00/kWh"
         utilityRate="₱11.00/kWh"
         return25="₱2,000,000"
@@ -140,7 +140,7 @@ const SystemOverview = ({ formData, goBack }) => {
         maturedTrees="15"
         gasolineKM="5,000"
         futureEnergyMixCanvasId="futureMixChart"
-      />
+      /> */}
 </SectionContent>
       
 

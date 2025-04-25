@@ -1,7 +1,14 @@
 // utils/sendToTelegram.js
 export const sendToTelegram = async (payload) => {
-    // wrap whatever payload you pass in a code-block
-    const text = JSON.stringify(payload, null, 2);
+      // 1) pretty-print with 2-space indent
+  const pretty = JSON.stringify(payload, null, 2);
+
+  // 2) collapse any multi-line [...] into one line
+  //    - match “[ ... ]” and replace internal newlines+spaces with single space
+  const text = pretty.replace(
+    /\[\s*([^\]]*?)\s*\]/gs,
+    (_, inner) => `[${inner.replace(/\s*\n\s*/g, ' ')}]`
+  );
 
   
     try {

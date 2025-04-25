@@ -24,9 +24,9 @@ const MapLocationModal = ({
       />
 
       {/* panel */}
-      <div className="relative bg-white w-full rounded-t-2xl max-h-[80vh] overflow-y-auto shadow-lg lg:rounded-2xl lg:min-w-[800px] animate-slide-up">
+      <div className="relative bg-white w-full rounded-t-2xl max-h-[80vh] overflow-y-auto shadow-lg lg:rounded-2xl lg:max-w-[800px] animate-slide-up">
         <div className="flex justify-between items-center p-4">
-          <h3 className="text-lg font-bold">Navigate the Map</h3>
+          <h3 className="text-lg font-bold">Move map to adjust the pin</h3>
           <button onClick={onClose}>
             <AiOutlineClose className="text-black text-2xl cursor-pointer" />
           </button>

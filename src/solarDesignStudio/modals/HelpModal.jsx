@@ -5,7 +5,7 @@ import { BiSupport } from "react-icons/bi";
 import { FaCheck } from "react-icons/fa";
 import { sendToTelegram } from "../shared/utils/sendToTelegram";
 
-const HelpModal = ({ onClose }) => {
+const HelpModal = ({ onClose, dataToSend }) => {
   // activeMethod can be "email", "text", or null.
   const [activeMethod, setActiveMethod] = useState(null);
   // sendStatus: "idle", "sending", or "sent".
@@ -52,11 +52,13 @@ const HelpModal = ({ onClose }) => {
     });
 
     const payload = {
-      type:      activeMethod === "email" ? "EMAIL" : "TEXT&CALL",
+      action:  "HELP REQUEST",
+      method:  activeMethod === "email" ? "EMAIL" : "TEXT&CALL",
       timestamp,
       contact:   contactValue.trim(),
-      estimateMonthlyBill: "NOTE: TEST FOR NEW SDS"
+      ...(dataToSend ? { data: dataToSend } : {})
     };
+    
 
     // Send via our reusable util
     const success = await sendToTelegram(
