@@ -15,7 +15,7 @@ const PanelsDiv = ({
       id="panelsDiv"
       className={`${
         visible ? "block" : "hidden"
-      } sticky top-[25px] z-10`} /* you can toggle visible via prop */
+      } z-10`} /* you can toggle visible via prop */
     >
       <div className="grid grid-cols-2 rounded-2xl shadow bg-white overflow-hidden mb-10 mt-5">
         {/* Left panel */}

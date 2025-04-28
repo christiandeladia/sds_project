@@ -28,6 +28,14 @@
   .animate-slide-up {
     animation: slide-up 0.3s ease-out forwards;
   }
+
+  @keyframes slide-down {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+  }
+  .animate-slide-down {
+    animation: slide-down 0.3s ease-out forwards;
+  }
   
   /* Disable it on lg+ if you want no slide there */
   @media (min-width: 1024px) {

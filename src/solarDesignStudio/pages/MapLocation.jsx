@@ -99,11 +99,11 @@ const MapLocation = ({ updateData, selectedAddress }) => {
           updateData("coordinates", { lat, lng });
           setShowDefaultMap(false);
 
-          // clearTimeout(debounceTimer.current);
-          // // …then open modal after 500ms
-          // debounceTimer.current = setTimeout(() => {
-          //   setShowMapModal(true);
-          // }, 500);
+          clearTimeout(debounceTimer.current);
+          // …then open modal after 500ms
+          debounceTimer.current = setTimeout(() => {
+            setShowMapModal(true);
+          }, 500);
         }
       });
     };
