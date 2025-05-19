@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo  } from "react";
 import { sendToTelegram } from "../shared/utils/sendToTelegram";
 import {
   isValidBookDate,
@@ -9,15 +9,19 @@ import {
   getDateAndTime,
   setBorderStyle,
 } from "../shared/utils/helper";
+import { buildDocumentData } from '../shared/DocumentData';
 
-const FinalDesign = ({ formData, onBack }) => {
+
+const FinalDesign = ({ formData,  queryParams, calculateDesign, priceDesign, onBack }) => {
   const [date, setDate]       = useState("");
   const [name, setName]       = useState("");
   const [phone, setPhone]     = useState("");
   const [email, setEmail]     = useState("");
   const [errors, setErrors]   = useState({});
   const [status, setStatus]   = useState("idle");
-
+  console.log(queryParams);
+  console.log(calculateDesign);
+  console.log(priceDesign);
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (status !== "idle") return;
@@ -43,7 +47,11 @@ const FinalDesign = ({ formData, onBack }) => {
     const payload = {
       action:    "BOOK SITE VISIT",
       timestamp: getDateAndTime(),
-      data:      { ...formData },
+      data: {
+        queryParams,
+        calculateDesign,
+        priceDesign
+      },
       contact: {
         SiteVisitDate: date,
         name:           name.trim(),
@@ -51,6 +59,7 @@ const FinalDesign = ({ formData, onBack }) => {
         email:          email.trim(),
       },
     };
+    console.log(payload);
 
     // --- SEND & UPDATE STATUS ---
     const success = await sendToTelegram(payload);
@@ -64,6 +73,56 @@ const FinalDesign = ({ formData, onBack }) => {
   const phoneClass  = setBorderStyle({ hasError: !!errors.phone,  isDisabled: commonOpts.disabled });
   const emailClass  = setBorderStyle({ hasError: !!errors.email,  isDisabled: commonOpts.disabled });
 
+
+  const today = new Date().toISOString().slice(0, 10);  
+
+
+  const params = {
+    buildingType:            formData.buildingType,
+    address:                 formData.address,
+    coordinates:             `${formData.coordinates.lat},${formData.coordinates.lng}`,
+    monthlyBill:             formData.monthlyBill,
+    roofType:                formData.installationType,
+    lineType:                formData.lineType    || "singlePhase",
+    lineVoltage:             formData.lineVoltage || "220",
+    timeOfUse:               formData.timeOfUse,
+    netMetering:           formData.netMetering === "yes" ? "yes" : "no",
+    panelCount:              formData.panelCount, 
+    inverterCount:              formData.inverterCount, 
+    batteryCount:            formData.batteryCount,
+    selectedBatteryTitle:    formData.selectedBatteryTitle,
+    selectedPanelTitle:      formData.selectedPanelTitle,
+    newRequestedMonthlyBill: formData.newRequestedMonthlyBill || ""
+  };
+
+  function addCommas(value) {
+      if (value == null) return '';
+    
+      const parts = value.toString().split('.');
+      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      return parts.join('.');
+    }
+
+    function formatNumber(num, decimals) {
+      const multiplier = Math.pow(10, decimals);
+      return Math.round(num * multiplier) / multiplier;
+    }
+    
+    // run the calc only when inputs change:
+    const documentData = useMemo(
+      () => buildDocumentData(params),
+      [JSON.stringify(params)]
+    );
+  
+    // pull out the panel count computed by the formula:
+    const solarPanelskW = (documentData.solarPanels.count * documentData.solarPanels.watts)/1000;
+    const totalPricing = documentData.pricing.total;
+    const rawSavings = documentData.systemEstimates.monthlyIncome * 12 * 25;
+    const finalTwentyYearSavings = Number(rawSavings.toFixed(2));
+    const includeText = documentData.queryParams.netMetering;
+
+    
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -72,17 +131,26 @@ const FinalDesign = ({ formData, onBack }) => {
       {/* Left Column */}
       <div className="p-6 bg-white">
         <h4 className="text-center mb-6 text-xl font-semibold">Your Design</h4>
-        <p className="text-center mb-0">{formData.kW} kW Solar Panels</p>
-        <p className="text-center mb-0">{formData.inverter} Inverter</p>
+        <p className="text-center mb-0">{solarPanelskW} kW Solar Panels</p>
+        <p className="text-center mb-0">Wall Inverter</p>
         {formData.battery && <p className="text-center mb-0">Battery</p>}
         <div className="h-px my-6 bg-gray-300" />
-        <p className="text-center mb-0">Total Cost: P{formData.totalCost}</p>
+        <p className="text-center mb-0">Total Cost: P{addCommas(totalPricing)}</p>
         <p className="text-center font-bold mt-2">
-          Est. 25 Year Savings: P{formData.savings}
+          Est. 25 Year Savings: P{addCommas(finalTwentyYearSavings)}
         </p>
         <p className="text-center text-sm text-gray-600 my-6">
-          {formData.costIncludes}
+          Includes installation cost, government applications &nbsp;
+          {includeText === 'no' ? (
+            <u>does not include</u>
+          ) : (
+            <u>includes</u>
+          )}{' '}
+          net metering processing. Design &amp; price is not final and may be
+          subject to change upon finalization.
         </p>
+
+        {/* <DocumentDataDisplay documentData={documentData} /> */}
       </div>
 
       {/* Right Column: Form */}
@@ -100,6 +168,7 @@ const FinalDesign = ({ formData, onBack }) => {
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            min={today}
             className={dateClass}
           />
           {errors.date && (

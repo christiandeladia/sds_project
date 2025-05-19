@@ -79,7 +79,7 @@ const RoofType = ({ updateData, selectedInstallationType }) => {
 
       <SectionMedia>
             {/* Image container with a changeable image */}
-            <div className="w-full h-70 bg-gray-300 rounded-lg flex justify-center items-center">
+            <div className="w-full h-70 lg:h-100 bg-gray-300 rounded-lg flex justify-center items-center">
               <img 
                 src={imageUrl} 
                 alt="Solar Project" 
@@ -111,7 +111,7 @@ const RoofType = ({ updateData, selectedInstallationType }) => {
   ))}
 </div>
 
-<p className="text-[0.75rem] text-gray-400 tracking-tight leading-tight mb-8 mt-4 text-left w-full max-w-10/12">
+<p className="text-[0.75rem] text-gray-400 tracking-tight leading-tight mt-4 text-left w-full">
   This info gives us an understanding of how much you can save with the different types of systems available.
 </p>
 </SectionContent>

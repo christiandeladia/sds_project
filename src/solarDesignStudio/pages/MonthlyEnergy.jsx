@@ -4,18 +4,27 @@ import MonthlyEnergyChart from "../chart/MonthlyEnergyChart";
 import HelpModal from "../modals/HelpModal";
 import MonthlyEnergyModal from "../modals/MonthlyEnergyModal";
 import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
+import roofTypes from "../assets/img/stock/roof-types.webp";
+import DailyEnergy from '../pages/DailyEnergy';
 
-const MonthlyEnergy = ({ updateData, selectedMonthlyBill, selectedBuildingType, initialConsumption, hasUserAdjusted }) => {
+
+const MonthlyEnergy = ({ updateData, selectedMonthlyBill, selectedBuildingType, initialConsumption, hasUserAdjusted, selectedTimeOfUse }) => {
   const [monthlyBill, setMonthlyBill] = useState(selectedMonthlyBill || "");
   const [showModal, setShowModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
 
   // Compute the slider's max value based on the bill and customer type.
   const computeSliderMax = (billValue) => {
-    const numericBill = billValue ? Number(billValue.replace(/,/g, "")) : 10000;
-    const rate = selectedBuildingType === "Commercial" ? 10 : 12.65;
+    // coerce to string, strip commas
+    const raw = String(billValue).replace(/,/g, "");
+    const numericBill = raw ? Number(raw) : 10000;
+  
+    // choose your rate
+    const rate = selectedBuildingType === "commercial" ? 10 : 12.65;
+  
     return Math.round(numericBill / rate);
   };
+  
 
   const computedSliderMax = computeSliderMax(monthlyBill);
 
@@ -27,8 +36,8 @@ const MonthlyEnergy = ({ updateData, selectedMonthlyBill, selectedBuildingType, 
 
   // Generate a uniform daily consumption based on computedSliderMax.
   const generateDailyConsumptionFromBill = (sliderMax) => {
-    const daily = Math.round(sliderMax / 31);
-    return Array(31).fill(daily);
+    const daily = Math.round(sliderMax / 30);
+    return Array(30).fill(daily);
   };
 
 // On mount, use parent's adjusted consumption if available,
@@ -67,14 +76,14 @@ const MonthlyEnergy = ({ updateData, selectedMonthlyBill, selectedBuildingType, 
   const raw = value.replace(/,/g, "");
   if (raw === "") {
     setMonthlyBill("");
-    updateData("monthlyBill", "");
+    updateData("monthlyBill", 0);
     return;
   }
   if (!/^\d+$/.test(raw)) return;
   if (raw.length > 1 && raw.startsWith("0")) return;
   const formatted = Number(raw).toLocaleString();
   setMonthlyBill(formatted);
-  updateData("monthlyBill", formatted);
+  updateData("monthlyBill", Number(raw));
 
   // Reset adjustment state when bill changes
   const newSliderMax = computeSliderMax(formatted);
@@ -215,6 +224,28 @@ const MonthlyEnergy = ({ updateData, selectedMonthlyBill, selectedBuildingType, 
     updateData("hasUserAdjusted", true);
   };
   
+  // const [selectedDays, setSelectedDays] = useState([]);
+
+  // const toggleDay = (day) => {
+  //   setSelectedDays((prevSelected) =>
+  //     prevSelected.includes(day)
+  //       ? prevSelected.filter((d) => d !== day)
+  //       : [...prevSelected, day]
+  //   );
+  // };
+
+  // const getButtonClass = (day) => {
+  //   const isSelected = selectedDays.includes(day);
+  //   const multipleSelected = selectedDays.length > 1;
+
+  //   if (isSelected) {
+  //     return multipleSelected
+  //       ? "border-3 border-yellow-500 text-yellow-600 font-semibold"
+  //       : "border-3 border-blue-400 text-blue-400 font-semibold";
+  //   }
+
+  //   return "border border-blue-400 text-blue-400 my-0.5";
+  // };
 
   return (
     <Container>
@@ -228,28 +259,41 @@ const MonthlyEnergy = ({ updateData, selectedMonthlyBill, selectedBuildingType, 
       </SectionHeader>
 
       <SectionMedia>
-  {monthlyBill
-    ? (
-      <>
-        <MonthlyEnergyChart
-          dailyConsumption={dailyConsumption}
-          sliderMax={computedSliderMax}
-          onDataChange={handleDataChange}
+  {monthlyBill ? (
+    <>
+
+        {/* <>
+          <MonthlyEnergyChart
+            dailyConsumption={dailyConsumption}
+            sliderMax={computedSliderMax}
+            onDataChange={handleDataChange}
+          />
+          <div className="flex justify-end mt-2">
+            <button
+              onClick={() => setShowModal(true)}
+              className="inline-flex items-center text-[0.85rem] text-blue-800 cursor-pointer"
+            >
+              Adjust Monthly Consumption
+              <FaArrowRight className="ml-1" />
+            </button>
+          </div>
+        </> */}
+
+
+        <DailyEnergy
+          updateData={updateData}
+          selectedTimeOfUse={selectedTimeOfUse}
+          computedSliderMax={computedSliderMax}
+          // selectedDays={selectedDays}
         />
-        <div className="flex justify-end mt-2">
-          <button
-            onClick={() => setShowModal(true)}
-            className="inline-flex items-center text-[0.85rem] text-blue-800 tracking-tight cursor-pointer"
-          >
-            Adjust Monthly Consumption <FaArrowRight className="ml-1" />
-          </button>
-        </div>
-      </>
-    )
-    : (
-      <div className="w-full h-60 bg-white rounded-lg" />
-    )
-  }
+
+    </>
+  ) : (
+    /* No bill entered: show roof image */
+    <div className="w-full h-70 lg:h-100 bg-gray-300 rounded-lg flex justify-center items-center">
+      <img src={roofTypes} alt="Roof Types" className="w-full h-full rounded-lg" />
+    </div>
+  )}
 </SectionMedia>
 
 
@@ -275,9 +319,24 @@ const MonthlyEnergy = ({ updateData, selectedMonthlyBill, selectedBuildingType, 
             className="pl-8 p-2 border rounded w-full"
           />
         </div>
-        <p className="text-[0.75rem] text-gray-400 tracking-tight mb-8 mt-2 text-left w-full max-w-10/12">
+        <p className="text-[0.75rem] text-gray-400 tracking-tight mt-2 text-left w-full">
           We will use this info to determine the optimal system size for you.
         </p>
+
+        {/* {monthlyBill && (
+          <div className="flex space-x-2 justify-center mt-3">
+            {["Mon", "Tue", "Wed", "Thurs", "Fri", "Sat", "Sun"].map((option) => (
+              <button
+                key={option}
+                onClick={() => toggleDay(option)}
+                className={`px-1 py-1 rounded-md flex-1 cursor-pointer transition-all ${getButtonClass(option)}`}
+              >
+                {option}
+              </button>
+            ))}
+          </div>
+        )} */}
+
       </SectionContent>
 
       <MonthlyEnergyModal

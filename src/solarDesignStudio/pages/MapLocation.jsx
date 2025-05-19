@@ -31,7 +31,7 @@ const MapLocation = ({ updateData, selectedAddress }) => {
   const [showMapModal, setShowMapModal] = useState(false);
   const debounceTimer = useRef(null);
   const wasFromInput = useRef(false);
-
+  const [pinsLoading, setPinsLoading] = useState(true);
   // When an address is provided externally, update the input and map accordingly.
   useEffect(() => {
     if (selectedAddress && window.google?.maps?.Geocoder) {
@@ -65,6 +65,7 @@ const MapLocation = ({ updateData, selectedAddress }) => {
         locations.push({ id: doc.id, ...doc.data() });
       });
       setPins(locations);
+      setPinsLoading(false);
     }, (error) => {
       console.error("Error fetching locations: ", error);
     });
@@ -133,10 +134,10 @@ const MapLocation = ({ updateData, selectedAddress }) => {
       if (status === 'OK' && results[0]) {
         const address = results[0].formatted_address;
         console.log("Reverse Geocoded Address:", address);
-        if (inputRef.current) {
-          inputRef.current.value = address;
-        }
-        updateData("address", address);
+        // if (inputRef.current) {
+        //   inputRef.current.value = address;
+        // }
+        // updateData("address", address);
       } else {
         console.warn("Geocoder failed: " + status);
       }
@@ -145,8 +146,8 @@ const MapLocation = ({ updateData, selectedAddress }) => {
 
   const handleChange = (e) => {
     const value = e.target.value;
-    updateData("address", value);
-    console.log("Typed Address:", value);
+    // updateData("address", value);
+    // console.log("Typed Address:", value);
     wasFromInput.current = true;
     if (value.trim() === '') {
       setSelectedLocation(null);
@@ -166,8 +167,7 @@ const MapLocation = ({ updateData, selectedAddress }) => {
 <SectionMedia>
 {/* Main Map Display – Fixed and Non-Draggable */}
 <div
-        className="relative rounded-2xl border border-gray-300 shadow-lg bg-white overflow-hidden"
-        style={{ height: '300px', width: '100%' }}
+        className="relative rounded-2xl border border-gray-300 shadow-lg bg-white overflow-hidden h-70 lg:h-100 w-full"
       >
         {/* Inner wrapper with margin creates visible gap from the border */}
         <div
@@ -179,6 +179,7 @@ const MapLocation = ({ updateData, selectedAddress }) => {
             overflow: 'hidden'
           }}
         >
+          {pinsLoading && (
           <GoogleMapReact
             bootstrapURLKeys={{
               key: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
@@ -214,6 +215,7 @@ const MapLocation = ({ updateData, selectedAddress }) => {
               ))
             }
           </GoogleMapReact>
+          )}
         </div>
 
         {/* Fixed overlay marker when map is not in default mode */}
@@ -225,7 +227,7 @@ const MapLocation = ({ updateData, selectedAddress }) => {
       </div>
 
       {/* Additional Info for Default Map */}
-      {showDefaultMap && (
+      {/* {showDefaultMap && (
         <div className="pl-5">
           <p className="text-[0.85rem] text-blue-600 tracking-tight mt-2 relative pl-5">
             <span className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2.5 h-2.5 bg-blue-600 rounded-full"></span>
@@ -236,7 +238,7 @@ const MapLocation = ({ updateData, selectedAddress }) => {
             Neighbours With Batteries
           </p>
         </div>
-      )}
+      )} */}
 
       {/* Button to Open Draggable Modal Map */}
       {!showDefaultMap && (
@@ -262,7 +264,7 @@ const MapLocation = ({ updateData, selectedAddress }) => {
         className="p-2 border rounded w-full"
         onChange={handleChange}
       />
-      <p className="text-[0.75rem] text-gray-400 tracking-tight mb-8 mt-2">
+      <p className="text-[0.75rem] text-gray-400 tracking-tight mt-2">
         We only use your address so that we can check your roof layout &amp; panel placements.
       </p>
 </SectionContent>

@@ -41,3 +41,52 @@
   @media (min-width: 1024px) {
     .lg\:animate-none { animation: none !important; }
   }
+
+
+
+  @keyframes fadeStep {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* apply to every new step */
+  .fade-step {
+    animation: fadeStep 0.5s ease-in-out;
+  }
+  
+  /* index.css */
+.collapsible {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  max-height: 0;
+}
+.collapsible.open {
+  opacity: 1;
+  /* we'll set max-height inline to the exact scrollHeight */
+}
+
+
+
+@keyframes dash {
+  from { stroke-dashoffset: 60; }
+  to   { stroke-dashoffset: 0;  }
+}
+
+/* base dashed arrow tail */
+path.dashed {
+  stroke-dasharray: 30 30;
+  stroke-dashoffset: 60;
+  animation: dash 3s linear infinite;
+}
+
+/* when reverse-grey is on the container, reverse the dash flow */
+.reverse-grey path.dashed {
+  animation-direction: reverse;
+}

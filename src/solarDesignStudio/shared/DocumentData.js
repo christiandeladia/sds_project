@@ -1,6 +1,9 @@
 // src/utils/buildDocumentData.js
 // Calculates and returns the full documentData object for Firestore storage
-
+import CanadianSolarPanel from '../assets/img/solar/solar-panel.webp';
+import DL5 from '../assets/img/battery/DL5.webp';
+import PowerBoxPro from '../assets/img/battery/PowerBoxPro.webp';
+import PowerBrick from '../assets/img/battery/PowerBrick.webp';
 const CO2ePerKWh = 0.0007603;
 
 function formatNumber(num, decimals) {
@@ -47,6 +50,17 @@ function getTwentyFiveYearsGeneration(
   return dataset;
 }
 
+  export const panels = [
+  { brand: 'Hiku6',     watts: 615, imageSrc: CanadianSolarPanel, recommended: true },
+  { brand: 'All Black', watts: 450, imageSrc: CanadianSolarPanel },
+  ];
+
+  export const batteries = [
+    { brand: 'PowerBrick', watts: 14336, imageSrc: PowerBrick, recommended: true },
+    { brand: 'Powerbox Pro', watts: 10240, imageSrc: PowerBoxPro, },
+    { brand: 'DL5.0C', watts: 5120, imageSrc: DL5, },
+  ];
+
 /**
  * Builds the documentData object from provided parameters
  * @param {object} params
@@ -57,17 +71,38 @@ export function buildDocumentData(params) {
     buildingType,
     address,
     coordinates,
-    monthlyBill: rawBill,
+    monthlyBill,
     roofType,
     lineType,
     lineVoltage,
     timeOfUse,
     netMetering,
+    panelCount,
+    batteryCount,
+    inverterCount,
+    selectedBatteryTitle,
+    selectedPanelTitle,
     newRequestedMonthlyBill,
   } = params;
 
+
+  // lookup (or default)
+  const lookup =
+    panels.find(p => p.brand === selectedPanelTitle) ||
+    panels.find(p => p.recommended);
+
+  const { brand: panelBrand, watts: panelWatts } = lookup
+  const panelKW = panelWatts / 1000; 
+
+  const lookupBattery =
+  batteries.find(b => b.brand === selectedBatteryTitle) ||
+  batteries.find(b => b.recommended);
+
+  const { brand: batteryBrand, watts: batteryWatts } = lookupBattery
+
+
   // Parse inputs
-  const monthlyBill = parseFloat(rawBill);
+
   const [latStr, longStr] = coordinates.split(",");
   const latitude = parseFloat(latStr);
   const longitude = parseFloat(longStr);
@@ -86,17 +121,17 @@ export function buildDocumentData(params) {
   const utilityDailyUsage = utilityMonthlykWh / 30;
   const utilityNetMeteringRate = 7.6;
   const optimalROISizeFactor =
-    timeOfUse === "nightTime"
+    timeOfUse === "Night time"
       ? 0.05
-      : timeOfUse === "dayTime"
+      : timeOfUse === "Day time"
       ? 0.16
-      : timeOfUse === "twentyFourSeven"
+      : timeOfUse === "24 Hours"
       ? 0.1
       : 0.05;
   const fastestROISolarSize = (utilityDailyUsage * optimalROISizeFactor) / 0.8;
   let suggestedSize =
     netMetering === "yes"
-      ? Math.ceil((monthlyBill / 30 / utilityNetMeteringRate / 5) / 0.610) * 0.610
+      ? Math.ceil((monthlyBill / 30 / utilityNetMeteringRate / 5) / panelKW) * panelKW
       : fastestROISolarSize;
 
   if (validNewRequestedMonthlyBill !== null) {
@@ -124,8 +159,8 @@ export function buildDocumentData(params) {
   totalSolarPricing += suggestedSize * scaledPricingPerKwh;
 
   let baseLabourPricePerKwh = 2720;
-  if (roofType === "shingles" || roofType === "tiles") baseLabourPricePerKwh += 1203;
-  if (roofType === "concrete") baseLabourPricePerKwh += 2448;
+  if (roofType === "Shingles" || roofType === "Tiles") baseLabourPricePerKwh += 1203;
+  if (roofType === "Concrete") baseLabourPricePerKwh += 2448;
   const totalLabourPricing = baseLabourPricePerKwh * suggestedSize;
 
   const scaledInverterPricing = lineType === "threePhase"
@@ -137,11 +172,11 @@ export function buildDocumentData(params) {
   // System estimates
   const monthlySolarGeneration = suggestedSize * 4 * 30;
   const exportPct =
-    timeOfUse === "nightTime"
+    timeOfUse === "Night time"
       ? 0.95
-      : timeOfUse === "dayTime"
+      : timeOfUse === "Day time"
       ? 0.84
-      : timeOfUse === "twentyFourSeven"
+      : timeOfUse === "24 Hours"
       ? 0.9
       : 1;
   const selfConsumptionRate =
@@ -173,6 +208,11 @@ export function buildDocumentData(params) {
       lineVoltage,
       timeOfUse,
       netMetering,
+      panelCount,
+      batteryCount,
+      inverterCount,
+      selectedBatteryTitle,
+      selectedPanelTitle,
       validNewRequestedMonthlyBill,
     },
     calculateDesign: {
@@ -229,10 +269,16 @@ export function buildDocumentData(params) {
       ),
     },
     solarPanels: {
-      watts: 610,
-      brand: "Canadian Solar",
-      count: Math.ceil(suggestedSize / 0.610),
-      sqm: formatNumber(Math.ceil(suggestedSize / 0.610) * 2.57, 2),
+      brand: panelBrand,
+      watts: panelWatts,
+      count: Math.ceil(suggestedSize / (panelWatts/1000)),  // if your size is in kW
+      sqm: formatNumber(Math.ceil(suggestedSize / (panelWatts/1000)) * 2.57, 2),
+    },
+    battery: {
+      brand: batteryBrand,
+      watts: batteryWatts,
+      count: Math.ceil(suggestedSize / (batteryWatts/1000)),  // if your size is in kW
+      sqm: formatNumber(Math.ceil(suggestedSize / (batteryWatts/1000)) * 2.57, 2),
     },
   };
 }

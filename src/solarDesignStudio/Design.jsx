@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo  } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./shared/Navbar";
 import MapLocation from "./pages/MapLocation";
@@ -11,7 +11,9 @@ import { sendToTelegram } from "./shared/utils/sendToTelegram";
 import { calculateDesign } from '../../functions/solarDesignStudio/CalculateDesign';
 import HelpModal from "./modals/HelpModal";
 import FinalDesign from './pages/FinalDesign';
+import { buildDocumentData } from "./shared/DocumentData";
 
+import { Container, SectionHeader, SectionMedia, SectionContent } from "./shared/Layout";
 
 const Design = () => {
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -26,7 +28,7 @@ const Design = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     buildingType: "",
-    monthlyBill: "",
+    monthlyBill: 0,
     monthlyEnergyData: [],
     timeOfUse: "",
     dailyEnergyData: [],
@@ -34,7 +36,13 @@ const Design = () => {
     address: "",
     coordinates: { lat: null, lng: null },
     hasUserAdjusted: false,
-    sliderMax: 0 
+    sliderMax: 0,
+    panelCount: 0,
+    batteryCount: 0,
+    inverterCount: 1,
+    selectedBatteryTitle: "",
+    selectedPanelTitle: "",
+    netMetering: "",
   });
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
@@ -77,25 +85,52 @@ const Design = () => {
     }
   };
 
+
+  const queryParams = {
+    buildingType:            formData.buildingType,
+    address:                 formData.address,
+    coordinates:             `${formData.coordinates.lat},${formData.coordinates.lng}`,
+    monthlyBill:             formData.monthlyBill,
+    roofType:                formData.installationType,
+    lineType:                formData.lineType    || "singlePhase",
+    lineVoltage:             formData.lineVoltage || "220",
+    timeOfUse:               formData.timeOfUse,
+    netMetering:             formData.netMetering === "yes" ? "yes" : "no",
+    panelCount:              formData.panelCount, 
+    inverterCount:           formData.inverterCount, 
+    batteryCount:            formData.batteryCount,
+    selectedBatteryTitle:    formData.selectedBatteryTitle,
+    selectedPanelTitle:      formData.selectedPanelTitle,
+    newRequestedMonthlyBill: formData.newRequestedMonthlyBill || ""
+  };
+  // only recompute when formData changes:
+  const documentData = useMemo(
+    () => buildDocumentData(queryParams),
+    [JSON.stringify(queryParams)]
+  );
+
   const renderStep = () => {
     switch (step) {
       case 1:
         return <BuildingType updateData={updateData} selectedBuildingType={formData.buildingType}  />;
       case 2:
-        return <MonthlyEnergy updateData={updateData} selectedMonthlyBill={formData.monthlyBill} selectedBuildingType={formData.buildingType} initialConsumption={formData.monthlyEnergyData}    hasUserAdjusted={formData.hasUserAdjusted}/>
+        return <MonthlyEnergy updateData={updateData} selectedMonthlyBill={formData.monthlyBill} selectedBuildingType={formData.buildingType} initialConsumption={formData.monthlyEnergyData}    hasUserAdjusted={formData.hasUserAdjusted} selectedTimeOfUse={formData.timeOfUse}/>
+      // case 3:
+      //   return <DailyEnergy updateData={updateData} selectedTimeOfUse={formData.timeOfUse} computedSliderMax={formData.sliderMax} />;
       case 3:
-        return <DailyEnergy updateData={updateData} selectedTimeOfUse={formData.timeOfUse} computedSliderMax={formData.sliderMax} />;
-      case 4:
         return <RoofType updateData={updateData} selectedInstallationType={formData.installationType} />;
-      case 5:
+      case 4:
         return <MapLocation center={mapCenter} updateData={updateData} selectedAddress={formData.address} />;
+      case 5:
+        return <SystemOverview formData={formData} updateData={updateData} goBack={prevStep} />;
       case 6:
-        return <SystemOverview formData={formData} goBack={prevStep} />;
-      case 7:
         return (
           <FinalDesign
             formData={formData}
-            onBack={() => setStep(6)}
+            queryParams={documentData.queryParams}
+            calculateDesign={documentData.calculateDesign}
+            priceDesign={documentData.priceDesign}
+            onBack={() => setStep(5)}
           />
         );
       default:
@@ -108,12 +143,12 @@ const Design = () => {
       case 1:
         return formData.buildingType !== "";
       case 2:
-        return formData.monthlyBill !== "";
+        return formData.monthlyBill !== 0;
+      // case 3:
+      //   return formData.timeOfUse !== "";
       case 3:
-        return formData.timeOfUse !== "";
-      case 4:
         return formData.installationType !== "";
-      case 5:
+      case 4:
         return formData.address !== "";
       default:
         return true;
@@ -137,12 +172,15 @@ const Design = () => {
           Solar Design Studio
         </h2> */}
 
-        {renderStep()}
+      <div key={step} className="fade-step">
+          {renderStep()}
+        </div>
 
         {/* Navigation Buttons */}
-        <div className="mt-2 mx-auto w-full max-w-10/12 lg:max-w-9/12 flex justify-center md:justify-end">
-          {step > 1 && step < 6 && (
-            <div className="flex space-x-4 min-w-12/12 md:min-w-6/12">
+        <Container noTopMargin>
+        <SectionContent className="flex justify-center md:justify-end mt-6 md:mt-0">
+          {step > 1 && step < 5 && (
+            <div className="flex space-x-4 w-full">
               <button onClick={prevStep} className='border border-gray-500 bg-gray-100 font-medium px-4 py-3 rounded-md flex-1 cursor-pointer'>Back</button>
               <button
                 onClick={nextStep}
@@ -159,7 +197,7 @@ const Design = () => {
           )}
           
           {/* Step 6: Get Contacted & Book Site Visit */}
-          {step === 6 && (
+          {step === 5 && (
           <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-300 p-4 z-40">
             <div className="flex space-x-4 justify-center max-w-4xl mx-auto">
               <button
@@ -170,7 +208,7 @@ const Design = () => {
               </button>
 
               <button
-                onClick={() => setStep(7)}
+                onClick={() => setStep(6)}
                 className="border font-medium px-4 py-3 rounded-md flex-1 bg-black text-white cursor-pointer"
               >
                 Book Site Visit
@@ -179,8 +217,8 @@ const Design = () => {
           </div>
         )}
 
-        </div>
-
+        </SectionContent>
+        </Container>
       </main>
 
        {showHelpModal && (

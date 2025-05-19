@@ -10,19 +10,46 @@ import {
 } from "../chart/DailyEnergyChart";
 import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
 
+//   const dayMap = [
+//     { short: 'Mon', full: 'Monday' },
+//     { short: 'Tue', full: 'Tuesday' },
+//     { short: 'Wed', full: 'Wednesday' },
+//     { short: 'Thurs', full: 'Thursday' },
+//     { short: 'Fri', full: 'Friday' },
+//     { short: 'Sat', full: 'Saturday' },
+//     { short: 'Sun', full: 'Sunday' },
+//   ];
 
-const DailyEnergy = ({ updateData, selectedTimeOfUse: propUsage, computedSliderMax }) => {
+// // Helper to format lists like "A and B" or "A, B, and C"
+// const formatList = (days) => {
+//   const names = days.map(short => dayMap.find(d => d.short === short).full);
+//   if (names.length === 1) return names[0];
+//   const last = names.pop();
+//   return `${names.join(', ')} and ${last}`;
+// };
+// // Labels for the button
+// const formatCustomizeLabel = (days) =>
+//   days.length === 1
+//     ? `Customize ${formatList(days)} only`
+//     : `Customize ${formatList(days)}`;
+// const formatMatchLabel = (days) => `Match ${formatList(days)} with`;
+
+
+const DailyEnergy = ({ updateData, selectedTimeOfUse: propUsage, computedSliderMax, selectedDays = [] }) => {
   const [selectedTimeOfUse, setSelectedTimeOfUse] = useState(propUsage || "Day time");
   const [showChartModal, setShowChartModal] = useState(false);
   const [shake, setShake] = useState(false);
+  const [isMatchedView, setIsMatchedView] = useState(false);
   
   // Compute dailySliderMax from the monthly value (make it a whole number)
-  const dailySliderMax = Math.round(computedSliderMax / 31);
+  // const dailySliderMax = Math.round(computedSliderMax / 30);
+  const dailySliderMax = 100;
 
   // Create a function that returns dynamic default patterns.
   const getDefaultPattern = (timeOfUse) => {
     if (timeOfUse === "Night time") return generateNightTimeData(dailySliderMax);
     if (timeOfUse === "24 Hours") return generateTwentyFourSevenData(dailySliderMax);
+    if (timeOfUse === "Custom") return generateDayTimeData(dailySliderMax); // fallback
     return generateDayTimeData(dailySliderMax);
   };
 
@@ -49,13 +76,13 @@ const DailyEnergy = ({ updateData, selectedTimeOfUse: propUsage, computedSliderM
   // When the modal chart is changed, update the state.
   const handleChartUpdate = (newData) => {
     setDailyPattern(newData);
-   updateData("dailyEnergyData", newData);
-    const pattern = analyzePattern(newData);
-    if (pattern !== selectedTimeOfUse) {
-      setSelectedTimeOfUse(pattern);
-      updateData("timeOfUse", pattern);
-    }
+    updateData("dailyEnergyData", newData);
+  
+    setSelectedTimeOfUse("Custom");
+    updateData("timeOfUse", "Custom");
+ 
   };
+  
 
   const analyzePattern = (data) => {
     const dayIndices = [3, 4, 5, 6, 7, 8];       // 6 AM to 6 PM
@@ -90,61 +117,59 @@ const DailyEnergy = ({ updateData, selectedTimeOfUse: propUsage, computedSliderM
     };
 
   return (
-    <Container>
-      <SectionHeader>
-        <h2 className="text-[1.25rem] text-gray-400 tracking-tight font-medium mb-3 mt-15 md:mt-0 text-left">
-          Solar Design Studio
-        </h2>
-        <h2 className="text-4xl font-medium mb-8 md:mb-0">
-          What time you use electricity is very important.
-        </h2>
-      </SectionHeader>
+    <div>
 
-      {/* Static chart (not draggable) */}
-      <SectionMedia>
-      <p className="text-[0.75rem] text-center text-gray-400 tracking-tight mt-2 md:mt-0 mb-2 w-full">
-          You mainly use your electricity during working hours.
-        </p>
+      <div className='border-1 p-5 rounded-lg'>
+      {/* <p className="text-lg mb-2">
+            {(!isMatchedView ? dayMap : dayMap.filter(d => selectedDays.includes(d.short)))
+              .map(({ short, full }, i, arr) => (
+                <span
+                  key={short}
+                  className={`inline-block ${selectedDays.includes(short) ? 'font-bold' : 'font-normal'}`}>
+                  {full}{i < arr.length - 1 ? ', ' : ''}
+                </span>
+              ))
+            }
+          </p> */}
+
+        {/* below the full-day list */}
+        {/* <button
+            onClick={() => setIsMatchedView(v => !v)}
+            className="text-blue-500 cursor-pointer"
+          >
+            {isMatchedView
+              ? formatMatchLabel(selectedDays)
+              : formatCustomizeLabel(selectedDays)
+            } <span className="ml-1">→</span>
+          </button> */}
+
         <DailyEnergyChart 
           data={dailyPattern} 
           draggable={false} 
           sliderMax={computedSliderMax} 
           timeOfUse={selectedTimeOfUse}  // Pass current usage so the chart can adjust if needed.
         />
-        <div className="flex justify-end">
-          <button
-            onClick={() => setShowChartModal(true)}
-            className="inline-flex items-center text-[0.85rem] text-blue-800 cursor-pointer"
-          >
-            Adjust Daily Energy Pattern
-            <FaArrowRight className="ml-1" />
-          </button>
-        </div>
 
-      </SectionMedia>
-
-      {/* timeOfUse Options */}
-      <SectionContent>
-        <p className="mt-4 md:mt-0 text-2xl font-medium mb-4">
-          When do you mainly use your electricity?
-        </p>
         <div className="mt-2 flex space-x-2 justify-center">
-          {["Day time", "Night time", "24 Hours"].map((option) => (
+          {["Day time", "Night time", "24 Hours", "Custom"].map((option) => (
             <button
               key={option}
               className={`border border-gray-500 px-1 py-2 rounded-md flex-1 cursor-pointer transition-all
                 ${selectedTimeOfUse === option ? "bg-blue-500 text-white" : "bg-gray-100"}`}
-              onClick={() => handleUsageChange(option)}
+              onClick={() => {
+                if (option === "Custom") {
+                  setShowChartModal(true);
+                } else {
+                  handleUsageChange(option);
+                }
+              }}
             >
               {option}
             </button>
           ))}
         </div>
-        <p className="text-[0.75rem] text-gray-400 tracking-tight leading-tight mb-8 mt-4 text-left w-full max-w-10/12">
-          This info gives us an understanding of how much you can save with the different types of systems available.
-        </p>
-      </SectionContent>
 
+      </div>
 
 
 {showChartModal && (
@@ -184,12 +209,12 @@ const DailyEnergy = ({ updateData, selectedTimeOfUse: propUsage, computedSliderM
               Daily consumption:{" "}
               {totalConsumptionRaw === dailySliderMax ? (
                 <span className={`text-green-600 font-semibold inline-block ${shake ? 'shake' : ''}`}>
-                  {totalConsumption} kWh (Max)
+                  {totalConsumption} % (Max)
                 </span>
               ) : (
                 <span className="text-red-500 font-bold">{totalConsumption}</span>
               )}
-              {totalConsumptionRaw === dailySliderMax ? "" : `/${dailySliderMax} kWh`}
+              {totalConsumptionRaw === dailySliderMax ? "" : `/${dailySliderMax} %`}
             </p>
 
 
@@ -206,7 +231,7 @@ const DailyEnergy = ({ updateData, selectedTimeOfUse: propUsage, computedSliderM
   </div>
 )}
 
-    </Container>
+    </div>
   );
 };
 

@@ -114,7 +114,8 @@ export const defaultLabels = [
 
 function DailyEnergyChart({ data = [], draggable = false, onDataChange, sliderMax, TimeOfUse = "Day time", onMaxDrag  }) {
   // Convert the monthly sliderMax to a daily sliderMax (as a whole number).
-  const dailySliderMax = Math.round(sliderMax / 31);
+  // const dailySliderMax = Math.round(sliderMax / 30);
+  const dailySliderMax = 100;
   console.log("dailySliderMax:", dailySliderMax);
   
   // If no data is provided, generate dynamic defaults based on usage:
@@ -268,7 +269,7 @@ const dragOptions = draggable
   };
 
   return (
-    <div className="w-full h-50 flex justify-center items-center">
+    <div className="w-full h-50 flex justify-center items-center lg:h-70">
       <Line data={chartData} options={options} />
     </div>
   );
