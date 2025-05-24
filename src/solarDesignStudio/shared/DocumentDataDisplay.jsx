@@ -7,6 +7,7 @@ import { FaAngleDown, FaAngleUp } from 'react-icons/fa';
 import { FaSun, FaBolt, FaBatteryFull, FaPlug  } from "react-icons/fa";
 import BatteryChargeChart from '../chart/BatteryChargeChart';
 import EnergyChargeChart from '../chart/EnergyChargeChart';
+import SyncedScatterCharts from '../chart/ZoomCrosshairChart';
 
 
 function CollapsibleSection({ title, children, defaultOpen = false }) {
@@ -22,10 +23,10 @@ function CollapsibleSection({ title, children, defaultOpen = false }) {
     }, [isOpen, children]);
 
   return (
-    <div className={`relative border-l-4 pl-4 mb-6 ${isOpen ? 'border-blue-500' : 'border-gray-300'}`}>
+    <div className={`relative border-l-2 pl-4 mb-6 ${isOpen ? 'border-blue-500' : 'border-gray-300'}`}>
       {/* Top Dot */}
       {isOpen && (
-        <span className="absolute -left-2.5 top-0 w-4 h-4 bg-blue-500 rounded-full transform -translate-y-1/2" />
+        <span className="absolute -left-2 top-0 w-3.5 h-3.5 bg-blue-500 rounded-full transform -translate-y-1/2" />
       )}
 
       {/* Header */}
@@ -53,7 +54,7 @@ function CollapsibleSection({ title, children, defaultOpen = false }) {
 
       {/* Bottom Dot */}
       {isOpen && (
-        <span className="absolute -left-2.5 bottom-0 w-4 h-4 bg-blue-500 rounded-full transform translate-y-1/2" />
+        <span className="absolute -left-2 bottom-0 w-3.5 h-3.5 bg-blue-500 rounded-full transform translate-y-1/2" />
       )}
     </div>
   );
@@ -61,7 +62,7 @@ function CollapsibleSection({ title, children, defaultOpen = false }) {
 
 
 
-export default function DocumentDataDisplay({ formData }) {
+export default function DocumentDataDisplay({ formData, dailyEnergyData = [] }) {
   // 1) Map your formData → queryParams
   const queryParams = {
     buildingType:          formData.buildingType,
@@ -76,8 +77,8 @@ export default function DocumentDataDisplay({ formData }) {
     panelCount:            formData.panelCount, 
     inverterCount:         formData.inverterCount, 
     batteryCount:          formData.batteryCount,
-    selectedBatteryTitle:  formData.selectedBatteryTitle,
-    selectedPanelTitle:    formData.selectedPanelTitle,
+    panelDetails:          formData.panelDetails,
+    batteryDetails:        formData.batteryDetails,
     newRequestedMonthlyBill: formData.newRequestedMonthlyBill || ""
   };
 
@@ -98,8 +99,8 @@ export default function DocumentDataDisplay({ formData }) {
       formData.panelCount,
       formData.inverterCount,
       formData.batteryCount,
-      formData.selectedBatteryTitle,
-      formData.selectedPanelTitle,
+      formData.panelDetails,
+      formData.batteryDetails,
       formData.newRequestedMonthlyBill
     ]
   );
@@ -113,8 +114,17 @@ export default function DocumentDataDisplay({ formData }) {
     <div className="pt-5">
       <CollapsibleSection title="Energy" defaultOpen>
           <div className="py-5 rounded-2xl bg-white overflow-hidden">
-            <EnergyChargeChart className='mb-5' />
+            <EnergyChargeChart className='mb-5' dailyEnergyData={formData.dailyEnergyData} sliderMax={formData.sliderMax} solarPanels={documentData.solarPanels}
+              battery={documentData.battery} netMetering={formData.netMetering} batteryReady={formData.batteryReady}/>
           </div>
+
+      {/* <div className="py-5">
+        <p className="text-gray-500 font-extrabold">Charge Level</p>
+        <BatteryChargeChart dailyEnergyData={formData.dailyEnergyData} sliderMax={formData.sliderMax} solarPanels={documentData.solarPanels}
+          battery={documentData.battery} batteryReady={formData.batteryReady} />
+      </div> */}
+
+          {/* <SyncedScatterCharts/> */}
 
           {/* <div className="py-5">
             <p className="text-gray-500 font-extrabold">Charge Level</p>

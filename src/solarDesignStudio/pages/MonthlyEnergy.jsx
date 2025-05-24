@@ -26,7 +26,8 @@ const MonthlyEnergy = ({ updateData, selectedMonthlyBill, selectedBuildingType, 
   };
   
 
-  const computedSliderMax = computeSliderMax(monthlyBill);
+  const computedSliderMax = Math.round(computeSliderMax(monthlyBill)/30);
+  console.log(computedSliderMax);
 
   useEffect(() => {
     // Pass computedSliderMax up to the parent using updateData.

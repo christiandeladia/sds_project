@@ -1,41 +1,22 @@
 import { useMemo, useState, useEffect } from "react";
-import { FaAngleDown, FaAngleUp } from "react-icons/fa";
 import { Container, SectionHeader, SectionMedia, SectionContent } from "../shared/Layout";
 import PanelsDiv from "../shared/PanelsDiv";
 // import FinalContent from '../shared/FinalContent';
 // import { requiredQueryParams } from '../shared/DocumentDataDisplay';
 import DocumentDataDisplay from '../shared/DocumentDataDisplay';
-import { buildDocumentData } from '../shared/DocumentData';
 import SystemOverviewHeader from '../modals/SystemOverviewHeader';
 
-const SystemOverview = ({ formData, updateData, goBack }) => {
+const SystemOverview = ({ formData, updateData, goBack, queryParams, documentData, dailyEnergyData }) => {
   const [headerExpanded, setHeaderExpanded] = useState(false);
-  const { panelCount: parentPanels, inverterCount: parentInverters, batteryCount: parentBatteries, netMetering, selectedBatteryTitle, selectedPanelTitle, batteryReady } = formData;
-
-  const params = {
-    buildingType:            formData.buildingType,
-    address:                 formData.address,
-    coordinates:             `${formData.coordinates.lat},${formData.coordinates.lng}`,
-    monthlyBill:             formData.monthlyBill,
-    roofType:                formData.installationType,
-    lineType:                formData.lineType    || "singlePhase",
-    lineVoltage:             formData.lineVoltage || "220",
-    timeOfUse:               formData.timeOfUse,
-    netMetering:             formData.netMetering === "yes" ? "yes" : "no",
-    panelCount:              formData.panelCount, 
-    inverterCount:           formData.inverterCount, 
-    batteryCount:            formData.batteryCount,
-    selectedBatteryTitle:    formData.selectedBatteryTitle,
-    selectedPanelTitle:      formData.selectedPanelTitle,
-    batteryReady:            formData.batteryReady,
-    newRequestedMonthlyBill: formData.newRequestedMonthlyBill || ""
-  };
-
-  // run the calc only when inputs change:
-  const documentData = useMemo(
-    () => buildDocumentData(params),
-    [JSON.stringify(params)]
-  );
+  const {
+    panelCount: parentPanels,
+    inverterCount: parentInverters,
+    batteryCount: parentBatteries,
+    netMetering,
+    panelDetails,
+    batteryDetails,
+    batteryReady
+  } = formData;
 
   // pull out the panel count computed by the formula:
   const computedPanelCount = documentData.solarPanels.count;
@@ -80,16 +61,20 @@ const SystemOverview = ({ formData, updateData, goBack }) => {
       parentInverters={parentInverters}
       parentBatteries={parentBatteries}
       netMetering={netMetering}
-      selectedBatteryTitle={selectedBatteryTitle}
-      selectedPanelTitle={selectedPanelTitle}
+      panelDetails={panelDetails}
+      batteryDetails={batteryDetails}
       batteryReady={batteryReady}
       onUpdateData={updateData}
     />
 
     <Container>
     {headerExpanded && (
-      <div className="fixed inset-0 bg-black/40 z-10 flex items-center justify-center"></div>
+      <div
+        className="fixed inset-0 bg-black/40 z-10"
+        onClick={() => setHeaderExpanded(false)}
+      />
     )}
+
 
       <SectionHeader>
       <h2 className="text-[1.25rem] text-gray-400 tracking-tight font-medium mb-3 text-left w-full max-w-10/12">
@@ -118,12 +103,12 @@ const SystemOverview = ({ formData, updateData, goBack }) => {
             squareFoot={documentData.solarPanels.sqm}
           /> */}
 
-<DocumentDataDisplay formData={formData} />
+
 
 </SectionMedia>
 
 <SectionContent>
-
+<DocumentDataDisplay formData={formData} dailyEnergyData={dailyEnergyData} />
 <div className="pb-60">
       </div>
 

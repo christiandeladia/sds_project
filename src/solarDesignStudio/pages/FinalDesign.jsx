@@ -90,8 +90,8 @@ const FinalDesign = ({ formData,  queryParams, calculateDesign, priceDesign, onB
     panelCount:              formData.panelCount, 
     inverterCount:              formData.inverterCount, 
     batteryCount:            formData.batteryCount,
-    selectedBatteryTitle:    formData.selectedBatteryTitle,
-    selectedPanelTitle:      formData.selectedPanelTitle,
+    panelDetails:    formData.panelDetails,
+    batteryDetails:      formData.batteryDetails,
     newRequestedMonthlyBill: formData.newRequestedMonthlyBill || ""
   };
 

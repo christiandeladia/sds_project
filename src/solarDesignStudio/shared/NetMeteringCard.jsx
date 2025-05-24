@@ -1,5 +1,5 @@
 import React from 'react';
-import residentialImg from '../assets/img/solar/residential.png';
+import residentialImg from '../assets/img/solar/residential.webp';
 
 const NetMeteringCard = ({ lastLabel, reverseGrey = false }) => {
   // CSS class toggles only the animation-direction
@@ -13,7 +13,7 @@ const NetMeteringCard = ({ lastLabel, reverseGrey = false }) => {
         src={residentialImg}
         alt="Solar"
         className="rounded block w-full h-auto"
-        fetchPriority="high"
+        fetchpriority="high"
         style={{ transform: 'scaleX(-1)' }}
       />
 
@@ -28,9 +28,6 @@ const NetMeteringCard = ({ lastLabel, reverseGrey = false }) => {
           zIndex: 20,
         }}
       >
-        <p className="mb-0" style={{ fontSize: '.6rem' }}>
-          Generate Power
-        </p>
       </div>
     )}
       {/* Arrow 1 */}
@@ -70,9 +67,6 @@ const NetMeteringCard = ({ lastLabel, reverseGrey = false }) => {
           zIndex: 20,
         }}
       >
-        <p className="mb-0" style={{ fontSize: '.6rem' }}>
-          Store Power
-        </p>
       </div>
 
       {/* Arrow 2 */}

@@ -11,7 +11,7 @@ import { sendToTelegram } from "./shared/utils/sendToTelegram";
 import { calculateDesign } from '../../functions/solarDesignStudio/CalculateDesign';
 import HelpModal from "./modals/HelpModal";
 import FinalDesign from './pages/FinalDesign';
-import { buildDocumentData } from "./shared/DocumentData";
+import { buildDocumentData, panels, batteries } from "./shared/DocumentData";
 
 import { Container, SectionHeader, SectionMedia, SectionContent } from "./shared/Layout";
 
@@ -24,7 +24,8 @@ const Design = () => {
     lat: 14.6760,
     lng: 121.0437
   });
-
+  const defaultPanel   = panels.find(p => p.recommended)   || panels[0];
+  const defaultBattery = batteries.find(b => b.recommended) || batteries[0];
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     buildingType: "",
@@ -40,8 +41,9 @@ const Design = () => {
     panelCount: 0,
     batteryCount: 0,
     inverterCount: 1,
-    selectedBatteryTitle: "",
-    selectedPanelTitle: "",
+    panelDetails: defaultPanel,
+    batteryDetails: defaultBattery,
+    batteryReady: false,
     netMetering: "",
   });
   const nextStep = () => setStep((prev) => prev + 1);
@@ -96,11 +98,13 @@ const Design = () => {
     lineVoltage:             formData.lineVoltage || "220",
     timeOfUse:               formData.timeOfUse,
     netMetering:             formData.netMetering === "yes" ? "yes" : "no",
+    sliderMax:               formData.sliderMax,
     panelCount:              formData.panelCount, 
     inverterCount:           formData.inverterCount, 
     batteryCount:            formData.batteryCount,
-    selectedBatteryTitle:    formData.selectedBatteryTitle,
-    selectedPanelTitle:      formData.selectedPanelTitle,
+    panelDetails:            formData.panelDetails,
+    batteryDetails:          formData.batteryDetails,
+    batteryReady:            formData.batteryReady,
     newRequestedMonthlyBill: formData.newRequestedMonthlyBill || ""
   };
   // only recompute when formData changes:
@@ -108,6 +112,7 @@ const Design = () => {
     () => buildDocumentData(queryParams),
     [JSON.stringify(queryParams)]
   );
+  console.log(documentData);
 
   const renderStep = () => {
     switch (step) {
@@ -122,7 +127,7 @@ const Design = () => {
       case 4:
         return <MapLocation center={mapCenter} updateData={updateData} selectedAddress={formData.address} />;
       case 5:
-        return <SystemOverview formData={formData} updateData={updateData} goBack={prevStep} />;
+        return <SystemOverview formData={formData} updateData={updateData} goBack={prevStep} queryParams={queryParams} documentData={documentData}  dailyEnergyData={formData.dailyEnergyData} />;
       case 6:
         return (
           <FinalDesign

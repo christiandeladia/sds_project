@@ -26,7 +26,10 @@ const MapLocationModal = ({
       {/* panel */}
       <div className="relative bg-white w-full rounded-t-2xl max-h-[80vh] overflow-y-auto shadow-lg lg:rounded-2xl lg:max-w-[800px] animate-slide-up">
         <div className="flex justify-between items-center p-4">
-          <h3 className="text-lg font-bold">Move map to adjust the pin</h3>
+          <div>
+            <h3 className="text-xl font-bold">Move the pin to your roof</h3>
+            <h3 className="text-md text-gray-500 font-medium">So our team can design for the right roof</h3>
+          </div>
           <button onClick={onClose}>
             <AiOutlineClose className="text-black text-2xl cursor-pointer" />
           </button>
